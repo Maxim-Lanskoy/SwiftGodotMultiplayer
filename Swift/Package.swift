@@ -33,7 +33,7 @@ let package = Package(
                 .product(name: "SwiftGodotKit", package: "SwiftGodotKit")
             ], path: "MultiplayerSwift",
             resources: [
-                .copy("Resources")
+                .copy("Resources/SwiftLibrary.pck")
             ])
     ]
 )

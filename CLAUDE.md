@@ -25,12 +25,14 @@ Migrate a GDScript multiplayer game template to Swift using SwiftGodot GDExtensi
 
 ```bash
 cd Swift
-make all      # Build, deploy, and pack resources
-make build    # Build Swift library only
-make deploy   # Copy libraries to Godot/bin
-make open     # Open Godot project
-make run      # Run standalone with SwiftGodotKit
-make paths    # Show configured paths
+make all       # Build, deploy, and pack resources (primary workflow)
+make build     # Build Swift library only
+make build-all # Build library + standalone executable
+make deploy    # Copy libraries to Godot/bin
+make open      # Open Godot project
+make run       # Run standalone with SwiftGodotKit
+make paths     # Show configured paths
+make clean     # Remove build artifacts
 ```
 
 ## SwiftGodot Patterns

@@ -6,6 +6,7 @@ Thumbs.db
 *.translation
 *.import
 *.uid
+*.pck
 .godot/
 export.cfg
 export_presets.cfg

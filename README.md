@@ -17,7 +17,7 @@ SwiftGodotMultiplayer/
 │   ├── SwiftLibrary/         # Main GDExtension library
 │   │   └── SwiftLibrary.swift
 │   └── MultiplayerSwift/     # Standalone executable (SwiftGodotKit)
-│       └── main.swift
+│       └── MultiplayerSwiftApp.swift
 │
 ├── Godot/                    # Godot project directory
 │   ├── project.godot         # Godot project configuration
@@ -65,10 +65,13 @@ make paths
 # Build Swift library
 make build
 
+# Build library + standalone executable
+make build-all
+
 # Deploy to Godot bin folder
 make deploy
 
-# Build, deploy, and create resource pack
+# Build, deploy, and create resource pack (primary workflow)
 make all
 
 # Open Godot project
@@ -76,6 +79,9 @@ make open
 
 # Run standalone (SwiftGodotKit)
 make run
+
+# Remove build artifacts
+make clean
 ```
 
 ### Environment Configuration
