@@ -1,12 +1,12 @@
 [gd_scene load_steps=46 format=4 uid="uid://cffjduipbb3s5"]
 
-[ext_resource type="Script" uid="uid://c2si8gkbnde0c" path="res://scripts/player.gd" id="1_tdh26"]
+
 [ext_resource type="Texture2D" uid="uid://bdg48m6l86q8i" path="res://assets/characters/player/3DGodotRobot_GodotPalette.png" id="1_w11jc"]
-[ext_resource type="Script" uid="uid://v8j54rbc0ik" path="res://scripts/3d_godot_robot.gd" id="2_mexc5"]
+
 [ext_resource type="Texture2D" uid="uid://cw6pxwst2gh85" path="res://assets/characters/player/GodotRobotPaletteSwap/GodotYellowPalette.png" id="3_l3dv8"]
 [ext_resource type="Texture2D" uid="uid://bbid6mowxhd5b" path="res://assets/characters/player/GodotRobotPaletteSwap/GodotGreenPalette.png" id="4_74ree"]
 [ext_resource type="Texture2D" uid="uid://fpmmv2oxjcdv" path="res://assets/characters/player/GodotRobotPaletteSwap/GodotPalette.png" id="4_max2b"]
-[ext_resource type="Script" uid="uid://bj7yrijm7bppq" path="res://scripts/spring_arm_offset.gd" id="4_ygggd"]
+
 [ext_resource type="Texture2D" uid="uid://brp1gy30s4rks" path="res://assets/characters/player/GodotRobotPaletteSwap/GodotRedPalette.png" id="5_qlefn"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mx45w"]
@@ -4780,10 +4780,10 @@ properties/3/path = NodePath("3DGodotRobot:rotation")
 properties/3/spawn = true
 properties/3/replication_mode = 1
 
-[node name="Player" type="CharacterBody3D" node_paths=PackedStringArray("_body", "_spring_arm_offset")]
+[node name="Player" type="Character" node_paths=PackedStringArray("body", "spring_arm_offset")]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
 collision_mask = 3
-script = ExtResource("1_tdh26")
+
 _body = NodePath("3DGodotRobot")
 _spring_arm_offset = NodePath("SpringArmOffset")
 blue_texture = ExtResource("4_max2b")
@@ -4795,9 +4795,9 @@ red_texture = ExtResource("5_qlefn")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.066, 0.828, 0.01)
 shape = SubResource("CapsuleShape3D_mx45w")
 
-[node name="3DGodotRobot" type="Node3D" parent="." node_paths=PackedStringArray("_character", "animation_player")]
+[node name="3DGodotRobot" type="Body" parent="." node_paths=PackedStringArray("character", "animation_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0644093, -1.19209e-07, -0.035357)
-script = ExtResource("2_mexc5")
+
 _character = NodePath("..")
 animation_player = NodePath("AnimationPlayer")
 
@@ -5007,9 +5007,9 @@ libraries = {
 }
 autoplay = "Idle"
 
-[node name="SpringArmOffset" type="Node3D" parent="." node_paths=PackedStringArray("_spring_arm")]
+[node name="SpringArmOffset" type="SpringArmCharacter" parent="." node_paths=PackedStringArray("spring_arm")]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
-script = ExtResource("4_ygggd")
+
 _spring_arm = NodePath("SpringArm3D")
 
 [node name="SpringArm3D" type="SpringArm3D" parent="SpringArmOffset"]
