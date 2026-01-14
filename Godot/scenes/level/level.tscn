@@ -47,7 +47,6 @@ shadow_blur = 0.5
 [node name="PlayersContainer" type="Node3D" parent="."]
 
 [node name="MainMenuUI" parent="." instance=ExtResource("6_x9g3h")]
-visible = false
 
 [node name="MultiplayerChatUI" parent="." instance=ExtResource("5_x9g3h")]
 visible = false
