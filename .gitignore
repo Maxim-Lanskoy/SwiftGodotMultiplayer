@@ -26,9 +26,10 @@ mono_crash.*.json
 *.resolved
 *.dylib
 
-# Logs and temporary files
+# Logs, envs and tmp files
 *.log
 *.tmp
+*.env
 
 # Editors / 3-rd party
 *.code-workspace

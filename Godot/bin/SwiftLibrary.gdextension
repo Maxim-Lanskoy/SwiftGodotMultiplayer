@@ -1,0 +1,47 @@
+[configuration]
+entry_symbol = "swift_entry_point"
+compatibility_minimum = 4.5
+
+[libraries]
+web.debug    = "res://bin/SwiftLibrary.dylib"
+web.release    = "res://bin/SwiftLibrary.dylib"
+web.debug.wasm32 = "res://bin/SwiftLibrary.wasm"
+web.release.wasm32 = "res://bin/SwiftLibrary.wasm"
+macos.debug          = "res://bin/SwiftLibrary.dylib"
+macos.release          = "res://bin/SwiftLibrary.dylib"
+windows.debug.x86_32   = "res://bin/SwiftLibrary.dll"
+windows.release.x86_32 = "res://bin/SwiftLibrary.dll"
+windows.debug.x86_64   = "res://bin/SwiftLibrary.dll"
+windows.release.x86_64 = "res://bin/SwiftLibrary.dll"
+linux.debug.x86_64     = "res://bin/SwiftLibrary.so"
+linux.release.x86_64.  = "res://bin/SwiftLibrary.so"
+linux.debug.arm64.     = "res://bin/SwiftLibrary.so"
+linux.release.arm64.   = "res://bin/SwiftLibrary.so"
+linux.debug.rv64       = "res://bin/SwiftLibrary.so"
+linux.release.rv64     = "res://bin/SwiftLibrary.so"
+android.debug.x86_64   = "res://bin/SwiftLibrary.dylib"
+android.release.x86_64 = "res://bin/SwiftLibrary.dylib"
+android.debug.arm64    = "res://bin/SwiftLibrary.dylib"
+android.release.arm64  = "res://bin/SwiftLibrary.dylib"
+
+[dependencies]
+web.debug              = {"res://bin/SwiftGodot.dylib" : ""}
+web.release            = {"res://bin/SwiftGodot.dylib" : ""}
+web.debug.wasm32       = {"res://bin/SwiftGodot.wasm"  : ""}
+web.release.wasm32     = {"res://bin/SwiftGodot.wasm"  : ""}
+macos.debug            = {"res://bin/SwiftGodot.dylib" : ""}
+macos.release          = {"res://bin/SwiftGodot.dylib" : ""}
+windows.debug.x86_32   = {"res://bin/SwiftGodot.dll"   : ""}
+windows.release.x86_32 = {"res://bin/SwiftGodot.dll"   : ""}
+windows.debug.x86_64.  = {"res://bin/SwiftGodot.dll"   : ""}
+windows.release.x86_64 = {"res://bin/SwiftGodot.dll"   : ""}
+linux.debug.x86_64     = {"res://bin/SwiftGodot.so"    : ""}
+linux.release.x86_64   = {"res://bin/SwiftGodot.so"    : ""}
+linux.debug.arm64.     = {"res://bin/SwiftGodot.so"    : ""}
+linux.release.arm64    = {"res://bin/SwiftGodot.so"    : ""}
+linux.debug.rv64       = {"res://bin/SwiftGodot.so"    : ""}
+linux.release.rv64     = {"res://bin/SwiftGodot.so"    : ""}
+android.debug.x86_64   = {"res://bin/SwiftGodot.dylib" : ""}
+android.release.x86_64 = {"res://bin/SwiftGodot.dylib" : ""}
+android.debug.arm64    = {"res://bin/SwiftGodot.dylib" : ""}
+android.release.arm64  = {"res://bin/SwiftGodot.dylib" : ""}
