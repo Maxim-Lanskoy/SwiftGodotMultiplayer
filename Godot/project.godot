@@ -19,8 +19,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-Network="*Network"
-ItemDatabase="*ItemDatabase"
+Network="*res://autoloads/network.tscn"
+ItemDatabase="*res://autoloads/item_database.tscn"
 
 [display]
 
