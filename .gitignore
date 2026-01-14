@@ -1,13 +1,15 @@
-# Godot 4+ specific ignores
-.godot/
-*.translation
+# System specific ignores
+.DS_Store
+Thumbs.db
 
-# Godot-specific ignores
+# Godot specific ignores
+*.translation
+.godot/
 .import/
 export.cfg
 export_presets.cfg
 
-# Build ignores
+# Godot build ignores
 builds/
 bin/
 releases/
@@ -17,14 +19,10 @@ releases/
 data_*/
 mono_crash.*.json
 
-# System specific ignores
-.DS_Store
-Thumbs.db
-
 # Logs and temporary files
 *.log
 *.tmp
 
-# Editor
-.vscode/
+# Editors / 3-rd party
 *.code-workspace
+.vscode/
