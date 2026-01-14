@@ -21,8 +21,8 @@ build:
 
 .PHONY: deploy
 deploy:
-	rm -rf $(GODOT_BIN_PATH)
-	mkdir -p $(GODOT_BIN_PATH)
+	rm -rf $(GODOT_BIN_PATH)/SwiftGodot.dylib
+	rm -rf $(GODOT_BIN_PATH)/SwiftLibrary.dylib
 
 	cp $(BUILD_PATH)/debug/libSwiftGodot.dylib $(GODOT_BIN_PATH)/SwiftGodot.dylib
 	cp $(BUILD_PATH)/debug/libSwiftLibrary.dylib $(GODOT_BIN_PATH)/SwiftLibrary.dylib

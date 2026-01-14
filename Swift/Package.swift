@@ -1,6 +1,8 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.2
 
 import PackageDescription
+
+let revision = "20d2d7a35d2ad392ec556219ea004da14ab7c1d4"
 
 let package = Package(
     name: "Swift",
@@ -15,8 +17,8 @@ let package = Package(
             targets: ["MultiplayerSwift"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/migueldeicaza/SwiftGodot", revision: "a1af0de831a22a2f1d5d8b4221d9df2fdd12978f"),
-        .package(url: "https://github.com/migueldeicaza/SwiftGodotKit", revision: "7f59a1ad97d243a071b548bed7ff573449c82af5")
+        .package(url:  "https://github.com/migueldeicaza/SwiftGodot", revision: revision),
+        .package(url: "https://github.com/migueldeicaza/SwiftGodotKit", branch:  "main" )
     ],
     targets: [
         .target(
