@@ -6,9 +6,8 @@ import Foundation
 public class Body: Node3D {
     private let lerpVelocity: Float = 0.15
 
-    // Node references - set via editor
-    @Export(.nodeType, "CharacterBody3D") var character: CharacterBody3D?
-    @Export(.nodeType, "AnimationPlayer") var animationPlayer: AnimationPlayer?
+    // Node reference - child AnimationPlayer
+    @Node("AnimationPlayer") var animationPlayer: AnimationPlayer?
 
     public func applyRotation(_ velocity: Vector3) {
         let targetAngle = Foundation.atan2(Double(-velocity.x), Double(-velocity.z))
@@ -16,14 +15,12 @@ public class Body: Node3D {
         rotation.y = Float(newRotationY)
     }
 
-    public func animate(_ velocity: Vector3) {
-        guard let character = character,
-              let animationPlayer = animationPlayer else {
-            return
-        }
+    /// Animate based on character state - all state passed as parameters
+    public func animate(_ velocity: Vector3, isOnFloor: Bool, isRunning: Bool) {
+        guard let animationPlayer = animationPlayer else { return }
 
         // Check if airborne
-        if !character.isOnFloor() {
+        if !isOnFloor {
             if velocity.y < 0 {
                 animationPlayer.play(name: "Fall")
             } else {
@@ -37,12 +34,10 @@ public class Body: Node3D {
 
         // Check if moving
         if velocity.x != 0 || velocity.z != 0 {
-            // Check if sprinting
-            if let char = character as? Character, char.isRunning() && character.isOnFloor() {
+            if isRunning {
                 animationPlayer.play(name: "Sprint")
                 return
             }
-
             animationPlayer.play(name: "Run")
             return
         }

@@ -4,13 +4,13 @@ import Foundation
 // Main game level manager - handles player spawning, UI, and game state
 @Godot
 public class Level: Node3D {
-    // Node references - set via editor
-    @Export(.nodeType, "Node3D") var playersContainer: Node3D?
-    @Export(.nodeType, "Control") var mainMenu: MainMenuUI?
-    @Export var playerScene: PackedScene?
+    // Node references - using @Node macro for scene tree binding
+    @Node("PlayersContainer") var playersContainer: Node3D?
+    @Node("MainMenuUI") var mainMenu: MainMenuUI?
+    @Node("MultiplayerChatUI") var multiplayerChat: MultiplayerChatUI?
+    @Node("InventoryUI") var inventoryUI: InventoryUI?
 
-    @Export(.nodeType, "Control") var multiplayerChat: MultiplayerChatUI?
-    @Export(.nodeType, "Control") var inventoryUI: InventoryUI?
+    @Export var playerScene: PackedScene?
 
     // State
     private var chatVisible = false

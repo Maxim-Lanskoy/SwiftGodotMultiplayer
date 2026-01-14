@@ -4780,12 +4780,10 @@ properties/3/path = NodePath("3DGodotRobot:rotation")
 properties/3/spawn = true
 properties/3/replication_mode = 1
 
-[node name="Player" type="Character" node_paths=PackedStringArray("body", "spring_arm_offset")]
+[node name="Player" type="Character"]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
 collision_mask = 3
 
-_body = NodePath("3DGodotRobot")
-_spring_arm_offset = NodePath("SpringArmOffset")
 blue_texture = ExtResource("4_max2b")
 yellow_texture = ExtResource("3_l3dv8")
 green_texture = ExtResource("4_74ree")
@@ -4795,11 +4793,8 @@ red_texture = ExtResource("5_qlefn")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.066, 0.828, 0.01)
 shape = SubResource("CapsuleShape3D_mx45w")
 
-[node name="3DGodotRobot" type="Body" parent="." node_paths=PackedStringArray("character", "animation_player")]
+[node name="3DGodotRobot" type="Body" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0644093, -1.19209e-07, -0.035357)
-
-_character = NodePath("..")
-animation_player = NodePath("AnimationPlayer")
 
 [node name="RobotArmature" type="Node3D" parent="3DGodotRobot"]
 transform = Transform3D(0.578472, 0, 0, 0, 0.578472, 0, 0, 0, 0.578472, 0, 0, 0)
@@ -5007,10 +5002,8 @@ libraries = {
 }
 autoplay = "Idle"
 
-[node name="SpringArmOffset" type="SpringArmCharacter" parent="." node_paths=PackedStringArray("spring_arm")]
+[node name="SpringArmOffset" type="SpringArmCharacter" parent="."]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
-
-_spring_arm = NodePath("SpringArm3D")
 
 [node name="SpringArm3D" type="SpringArm3D" parent="SpringArmOffset"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 0)

@@ -8,9 +8,14 @@ public class Character: CharacterBody3D {
     private let sprintSpeed: Float = 10.0
     private let jumpVelocity: Float = 10.0
 
-    // Node references
-    @Export(.nodeType, "Node3D") var body: Body?
-    @Export(.nodeType, "Node3D") var springArmOffset: SpringArmCharacter?
+    // Node references - using @Node macro for scene tree binding
+    @Node("3DGodotRobot") var body: Body?
+    @Node("SpringArmOffset") var springArmOffset: SpringArmCharacter?
+    @Node("PlayerNick/Nickname") var nicknameLabel: Label3D?
+    @Node("3DGodotRobot/RobotArmature/Skeleton3D/Bottom") var bottomMesh: MeshInstance3D?
+    @Node("3DGodotRobot/RobotArmature/Skeleton3D/Chest") var chestMesh: MeshInstance3D?
+    @Node("3DGodotRobot/RobotArmature/Skeleton3D/Face") var faceMesh: MeshInstance3D?
+    @Node("3DGodotRobot/RobotArmature/Skeleton3D/Llimbs and head") var limbsHeadMesh: MeshInstance3D?
 
     // Skin textures
     #exportGroup("Skin Colors")
@@ -28,15 +33,6 @@ public class Character: CharacterBody3D {
 
     // Inventory
     public var playerInventory: PlayerInventory?
-
-    // Nickname label - found via node path
-    private var nicknameLabel: Label3D?
-
-    // Mesh instances for skin coloring
-    private var bottomMesh: MeshInstance3D?
-    private var chestMesh: MeshInstance3D?
-    private var faceMesh: MeshInstance3D?
-    private var limbsHeadMesh: MeshInstance3D?
 
     public override func _enterTree() {
         // Set multiplayer authority based on node name (which is peer_id)
@@ -56,13 +52,6 @@ public class Character: CharacterBody3D {
            let gravityValue = Float(gravityVariant) {
             gravity = gravityValue
         }
-
-        // Get node references
-        nicknameLabel = getNode(path: "PlayerNick/Nickname") as? Label3D
-        bottomMesh = getNode(path: "3DGodotRobot/RobotArmature/Skeleton3D/Bottom") as? MeshInstance3D
-        chestMesh = getNode(path: "3DGodotRobot/RobotArmature/Skeleton3D/Chest") as? MeshInstance3D
-        faceMesh = getNode(path: "3DGodotRobot/RobotArmature/Skeleton3D/Face") as? MeshInstance3D
-        limbsHeadMesh = getNode(path: "3DGodotRobot/RobotArmature/Skeleton3D/Llimbs and head") as? MeshInstance3D
 
         let isLocalPlayer = isMultiplayerAuthority()
         let localClientId = multiplayer?.getUniqueId() ?? 0
@@ -120,7 +109,7 @@ public class Character: CharacterBody3D {
 
         move()
         moveAndSlide()
-        body?.animate(velocity)
+        body?.animate(velocity, isOnFloor: isOnFloor(), isRunning: isRunning())
     }
 
     public override func _process(delta: Double) {
@@ -132,7 +121,7 @@ public class Character: CharacterBody3D {
         velocity.x = 0
         velocity.z = 0
         currentSpeed = 0
-        body?.animate(Vector3.zero)
+        body?.animate(Vector3.zero, isOnFloor: isOnFloor(), isRunning: false)
     }
 
     private func move() {

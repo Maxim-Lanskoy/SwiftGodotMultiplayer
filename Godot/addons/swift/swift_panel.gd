@@ -74,12 +74,8 @@ func recompile_swift() -> void:
 			return
 		append_log("Created bin directory")
 
-	# Create .gdignore to prevent Godot from scanning build artifacts
-	var gdignore_path = bin_path.path_join(".gdignore")
-	if not FileAccess.file_exists(gdignore_path):
-		var file = FileAccess.open(gdignore_path, FileAccess.WRITE)
-		if file:
-			file.close()
+	# Note: Don't create .gdignore in bin folder as it would prevent
+	# Godot from finding the .gdextension file
 
 	# Clean build if requested
 	if clean_build_check_button.button_pressed:
@@ -134,24 +130,24 @@ func recompile_swift() -> void:
 func deploy_libraries() -> bool:
 	var debug_path = build_path.path_join("debug")
 
-	# Source paths (from Swift build output)
+	# Source and destination paths (keep lib prefix to match Swift output and avoid rpath issues)
 	var lib_swiftgodot_src = debug_path.path_join("libSwiftGodot.dylib")
 	var lib_library_src = debug_path.path_join("lib" + LIBRARY_NAME + ".dylib")
 
-	# Destination paths (matching .gdextension configuration)
-	var swiftgodot_dst = bin_path.path_join("SwiftGodot.dylib")
-	var library_dst = bin_path.path_join(LIBRARY_NAME + ".dylib")
+	# Destination paths (matching .gdextension configuration - keep lib prefix)
+	var swiftgodot_dst = bin_path.path_join("libSwiftGodot.dylib")
+	var library_dst = bin_path.path_join("lib" + LIBRARY_NAME + ".dylib")
 
 	var success = true
 
-	# Copy SwiftGodot.dylib
+	# Copy libSwiftGodot.dylib
 	if FileAccess.file_exists(lib_swiftgodot_src):
 		var err = DirAccess.copy_absolute(lib_swiftgodot_src, swiftgodot_dst)
 		if err != OK:
-			append_log("[color=red]Failed to copy SwiftGodot.dylib: " + error_string(err) + "[/color]")
+			append_log("[color=red]Failed to copy libSwiftGodot.dylib: " + error_string(err) + "[/color]")
 			success = false
 		else:
-			append_log("  → SwiftGodot.dylib")
+			append_log("  → libSwiftGodot.dylib")
 	else:
 		append_log("[color=yellow]Warning: libSwiftGodot.dylib not found[/color]")
 		append_log("[color=gray]  " + lib_swiftgodot_src + "[/color]")
@@ -160,10 +156,10 @@ func deploy_libraries() -> bool:
 	if FileAccess.file_exists(lib_library_src):
 		var err = DirAccess.copy_absolute(lib_library_src, library_dst)
 		if err != OK:
-			append_log("[color=red]Failed to copy " + LIBRARY_NAME + ".dylib: " + error_string(err) + "[/color]")
+			append_log("[color=red]Failed to copy lib" + LIBRARY_NAME + ".dylib: " + error_string(err) + "[/color]")
 			success = false
 		else:
-			append_log("  → " + LIBRARY_NAME + ".dylib")
+			append_log("  → lib" + LIBRARY_NAME + ".dylib")
 	else:
 		append_log("[color=red]Error: lib" + LIBRARY_NAME + ".dylib not found[/color]")
 		append_log("[color=gray]  " + lib_library_src + "[/color]")

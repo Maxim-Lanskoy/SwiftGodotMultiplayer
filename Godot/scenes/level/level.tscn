@@ -18,11 +18,7 @@ size = Vector3(90, 0.05, 90)
 fog_enabled = true
 
 [node name="Level" type="Level"]
-players_container = NodePath("PlayersContainer")
-main_menu = NodePath("MainMenuUI")
 player_scene = ExtResource("1_uvcbi")
-multiplayer_chat = NodePath("MultiplayerChatUI")
-inventory_ui = NodePath("InventoryUI")
 
 [node name="Environment" type="Node3D" parent="."]
 

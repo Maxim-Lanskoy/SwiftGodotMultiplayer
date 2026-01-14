@@ -91,12 +91,12 @@ deploy:
 	@echo "$(BOLD)$(CYAN)$(GEAR) Deploying libraries...$(RESET)"
 	@echo "$(BOLD)────────────────────────────────────────────$(RESET)"
 	@mkdir -p $(GODOT_BIN_PATH)
-	@rm -f $(GODOT_BIN_PATH)/SwiftGodot.dylib
-	@rm -f $(GODOT_BIN_PATH)/SwiftLibrary.dylib
-	@cp $(BUILD_PATH)/debug/libSwiftGodot.dylib $(GODOT_BIN_PATH)/SwiftGodot.dylib
-	@echo "  $(ARROW) SwiftGodot.dylib"
-	@cp $(BUILD_PATH)/debug/libSwiftLibrary.dylib $(GODOT_BIN_PATH)/SwiftLibrary.dylib
-	@echo "  $(ARROW) SwiftLibrary.dylib"
+	@rm -f $(GODOT_BIN_PATH)/libSwiftGodot.dylib
+	@rm -f $(GODOT_BIN_PATH)/libSwiftLibrary.dylib
+	@cp $(BUILD_PATH)/debug/libSwiftGodot.dylib $(GODOT_BIN_PATH)/libSwiftGodot.dylib
+	@echo "  $(ARROW) libSwiftGodot.dylib"
+	@cp $(BUILD_PATH)/debug/libSwiftLibrary.dylib $(GODOT_BIN_PATH)/libSwiftLibrary.dylib
+	@echo "  $(ARROW) libSwiftLibrary.dylib"
 	@echo "$(GREEN)$(CHECK) Libraries deployed to $(GODOT_BIN_PATH)$(RESET)"
 	@echo ""
 
@@ -128,8 +128,8 @@ clean:
 	@echo "$(BOLD)────────────────────────────────────────────$(RESET)"
 	@rm -rf $(BUILD_PATH)
 	@echo "  $(ARROW) Removed $(BUILD_PATH)"
-	@rm -f $(GODOT_BIN_PATH)/SwiftGodot.dylib
-	@rm -f $(GODOT_BIN_PATH)/SwiftLibrary.dylib
+	@rm -f $(GODOT_BIN_PATH)/libSwiftGodot.dylib
+	@rm -f $(GODOT_BIN_PATH)/libSwiftLibrary.dylib
 	@echo "  $(ARROW) Removed libraries from $(GODOT_BIN_PATH)"
 	@echo "$(GREEN)$(CHECK) Clean complete$(RESET)"
 	@echo ""

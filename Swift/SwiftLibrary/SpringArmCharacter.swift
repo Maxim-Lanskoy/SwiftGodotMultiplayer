@@ -5,8 +5,8 @@ import SwiftGodot
 public class SpringArmCharacter: Node3D {
     private let mouseSensitivity: Float = 0.005
 
-    // Node references - set via editor
-    @Export(.nodeType, "SpringArm3D") var springArm: SpringArm3D?
+    // Node reference - using @Node macro for scene tree binding
+    @Node("SpringArm3D") var springArm: SpringArm3D?
 
     public override func _unhandledInput(event: InputEvent?) {
         guard let event = event as? InputEventMouseMotion,
