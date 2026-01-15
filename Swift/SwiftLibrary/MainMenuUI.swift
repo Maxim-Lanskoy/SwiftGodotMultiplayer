@@ -28,7 +28,10 @@ public class MainMenuUI: Control {
     public func onJoinPressed() {
         let nickname = nickInput?.text.trimmingCharacters(in: .whitespaces) ?? ""
         let skin = skinInput?.text.trimmingCharacters(in: .whitespaces).lowercased() ?? ""
-        let address = addressInput?.text.trimmingCharacters(in: .whitespaces) ?? Network.serverAddress
+        var address = addressInput?.text.trimmingCharacters(in: .whitespaces) ?? ""
+        if address.isEmpty {
+            address = Network.serverAddress
+        }
         joinPressed.emit(nickname, skin, address)
     }
 
@@ -62,6 +65,7 @@ public class MainMenuUI: Control {
     }
 
     public func getAddress() -> String {
-        return addressInput?.text.trimmingCharacters(in: .whitespaces) ?? ""
+        let address = addressInput?.text.trimmingCharacters(in: .whitespaces) ?? ""
+        return address.isEmpty ? Network.serverAddress : address
     }
 }

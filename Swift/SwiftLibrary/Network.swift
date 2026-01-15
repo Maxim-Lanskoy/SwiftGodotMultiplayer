@@ -190,13 +190,16 @@ public class Network: Node {
     /// - Parameters:
     ///   - nickname: Player's display name.
     ///   - skinColorStr: Player's skin color name.
-    ///   - address: Server IP address.
+    ///   - address: Server IP address (defaults to localhost if empty).
     /// - Returns: Error code (.ok on success).
     public func joinGame(nickname: String, skinColorStr: String, address: String = serverAddress) -> GodotError {
+        // Use default address if empty
+        let serverAddr = address.trimmingCharacters(in: .whitespaces).isEmpty ? Network.serverAddress : address
+
         let peer = ENetMultiplayerPeer()
-        let error = peer.createClient(address: address, port: Network.serverPort)
+        let error = peer.createClient(address: serverAddr, port: Network.serverPort)
         if error != .ok {
-            GD.pushError("Network: Failed to connect to \(address):\(Network.serverPort): \(error)")
+            GD.pushError("Network: Failed to connect to \(serverAddr):\(Network.serverPort): \(error)")
             return error
         }
 
@@ -209,7 +212,7 @@ public class Network: Node {
 
         playerInfo.nick = nick
         playerInfo.skin = SkinColor.fromString(skinColorStr)
-        GD.print("Network: Connecting to \(address):\(Network.serverPort)")
+        GD.print("Network: Connecting to \(serverAddr):\(Network.serverPort)")
         return .ok
     }
 
@@ -236,7 +239,7 @@ public class Network: Node {
     /// RPC function to register a new player's info.
     @Rpc(mode: .anyPeer, callLocal: false, transferMode: .reliable)
     @Callable
-    func registerPlayer(newPlayerInfo: VariantDictionary) {
+    public func registerPlayer(newPlayerInfo: VariantDictionary) {
         let senderId = Int(multiplayer?.getRemoteSenderId() ?? 0)
         let info = PlayerInfo.fromDict(newPlayerInfo)
         players[senderId] = info

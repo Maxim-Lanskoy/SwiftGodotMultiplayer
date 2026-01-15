@@ -213,7 +213,7 @@ public class Level: Node3D {
     /// Broadcasts a chat message to all peers.
     @Rpc(mode: .anyPeer, callLocal: true, transferMode: .reliable)
     @Callable
-    func msgRpc(nick: String, msg: String) {
+    public func msgRpc(nick: String, msg: String) {
         multiplayerChat?.addMessage(nick: nick, msg: msg)
     }
 
