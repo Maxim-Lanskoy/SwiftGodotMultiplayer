@@ -3,7 +3,7 @@ import SwiftGodot
 #initSwiftExtension(
     cdecl: "swift_entry_point",
     types: [
-        // Singletons (autoloads)
+        // Singletons (configured as Godot Autoloads)
         Network.self,
         ItemDatabase.self,
 

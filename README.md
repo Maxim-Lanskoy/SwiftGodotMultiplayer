@@ -6,6 +6,14 @@ A multiplayer game project using [SwiftGodot](https://github.com/migueldeicaza/S
 
 This project aims to implement a multiplayer game using SwiftGodot, migrating an existing GDScript multiplayer template to Swift while following best practices from community examples.
 
+### Features
+
+- **ENet Multiplayer**: Client-server networking with host/join functionality
+- **Server-Authoritative Inventory**: Secure inventory system with RPC validation
+- **Player Management**: Spawn/despawn with skin customization
+- **Real-time Chat**: Multiplayer chat system
+- **Click-to-Move Inventory UI**: Intuitive item management interface
+
 ## Project Structure
 
 ```
@@ -15,7 +23,17 @@ SwiftGodotMultiplayer/
 │   ├── Makefile              # Build automation (build, deploy, run, pack)
 │   ├── .env                  # Environment variables for Makefile
 │   ├── SwiftLibrary/         # Main GDExtension library
-│   │   └── SwiftLibrary.swift
+│   │   ├── SwiftLibrary.swift    # Entry point
+│   │   ├── Network.swift         # Connection management
+│   │   ├── Level.swift           # Game state, player spawning
+│   │   ├── Character.swift       # Player controller + inventory RPC
+│   │   ├── PlayerInventory.swift # Inventory grid system
+│   │   ├── Item.swift            # Item data model
+│   │   ├── ItemDatabase.swift    # Item registry singleton
+│   │   ├── InventoryUI.swift     # Inventory panel UI
+│   │   ├── InventorySlotUI.swift # Slot UI component
+│   │   ├── MainMenuUI.swift      # Main menu
+│   │   └── MultiplayerChatUI.swift # Chat panel
 │   └── MultiplayerSwift/     # Standalone executable (SwiftGodotKit)
 │       └── MultiplayerSwiftApp.swift
 │
@@ -159,6 +177,18 @@ make all    # Build, deploy, pack
 4. Editor automatically restarts with updated libraries
 
 The plugin uses the same build directory (`Swift/.build`) as the Makefile.
+
+## Controls
+
+| Key | Action |
+|-----|--------|
+| WASD | Move |
+| Space | Jump |
+| I | Toggle inventory |
+| Tab | Toggle chat |
+| F1 | Debug: Add random item |
+| F2 | Debug: Print inventory |
+| Escape | Close panels / Cancel action |
 
 ## License
 

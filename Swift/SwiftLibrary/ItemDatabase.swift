@@ -1,37 +1,103 @@
 import SwiftGodot
 
-// Item database singleton - holds all item definitions
-// This is registered as an autoload in Godot
+/// Singleton database containing all item definitions.
+///
+/// This class is registered as an Engine singleton and provides centralized access
+/// to item data throughout the game. Items are loaded at startup and can be
+/// queried by their unique ID.
+///
+/// ## Usage
+/// ```swift
+/// if let sword = ItemDatabase.shared?.getItem("iron_sword") {
+///     inventory.addItem(sword, quantity: 1)
+/// }
+/// ```
+///
+/// ## Registration
+/// Configure as Godot Autoload in Project Settings.
 @Godot
 public class ItemDatabase: Node {
-    // Singleton accessor - Godot manages threading
-    nonisolated(unsafe) public static var shared: ItemDatabase!
+    // MARK: - Singleton
+
+    /// Shared instance. Set when added as Godot Autoload.
+    /// Use optional chaining for safe access: `ItemDatabase.shared?.getItem(...)`.
+    nonisolated(unsafe) public static var shared: ItemDatabase?
+
+    // MARK: - Private State
 
     private var items: [String: Item] = [:]
+
+    // MARK: - Lifecycle
 
     public override func _ready() {
         ItemDatabase.shared = self
         loadItems()
+        GD.print("ItemDatabase: Loaded \(items.count) items")
     }
 
+    public override func _exitTree() {
+        if ItemDatabase.shared === self {
+            ItemDatabase.shared = nil
+        }
+    }
+
+    // MARK: - Public API
+
+    /// Retrieves an item by its unique ID.
+    /// - Parameter itemId: The item's unique identifier.
+    /// - Returns: The item if found, nil otherwise.
     public func getItem(_ itemId: String) -> Item? {
         return items[itemId]
     }
 
+    /// Checks if an item exists in the database.
+    /// - Parameter itemId: The item's unique identifier.
+    /// - Returns: True if the item exists.
     public func hasItem(_ itemId: String) -> Bool {
         return items[itemId] != nil
     }
 
+    /// Returns all items in the database.
+    /// - Returns: Dictionary of all items keyed by ID.
     public func getAllItems() -> [String: Item] {
         return items
     }
+
+    /// Adds a new item to the database.
+    /// - Parameter item: The item to add.
+    /// - Returns: True if added successfully.
+    public func addItemToDatabase(_ item: Item) -> Bool {
+        guard !item.id.isEmpty else {
+            GD.pushError("ItemDatabase: Cannot add item with empty ID")
+            return false
+        }
+
+        if items[item.id] != nil {
+            GD.pushWarning("ItemDatabase: Item '\(item.id)' already exists, overwriting")
+        }
+
+        items[item.id] = item
+        return true
+    }
+
+    /// Removes an item from the database.
+    /// - Parameter itemId: The item's unique identifier.
+    /// - Returns: True if the item was removed.
+    public func removeItemFromDatabase(_ itemId: String) -> Bool {
+        if items[itemId] != nil {
+            items.removeValue(forKey: itemId)
+            return true
+        }
+        return false
+    }
+
+    // MARK: - Private Methods
 
     private func loadItems() {
         createSampleItems()
     }
 
     private func createSampleItems() {
-        // Load placeholder icon
         let placeholderIcon = GD.load(path: "res://icon.svg") as? Texture2D
 
         // Basic sword
@@ -103,27 +169,5 @@ public class ItemDatabase: Node {
         )
         ironPickaxe.icon = placeholderIcon
         items[ironPickaxe.id] = ironPickaxe
-    }
-
-    public func addItemToDatabase(_ item: Item) -> Bool {
-        guard !item.id.isEmpty else {
-            GD.pushError("Cannot add item with empty ID to database")
-            return false
-        }
-
-        if items[item.id] != nil {
-            GD.pushWarning("Item with ID '\(item.id)' already exists in database. Overwriting.")
-        }
-
-        items[item.id] = item
-        return true
-    }
-
-    public func removeItemFromDatabase(_ itemId: String) -> Bool {
-        if items[itemId] != nil {
-            items.removeValue(forKey: itemId)
-            return true
-        }
-        return false
     }
 }

@@ -19,7 +19,7 @@ let package = Package(
     dependencies: [
         // .package(url:  "https://github.com/migueldeicaza/SwiftGodot", revision: revision),
         // .package(url: "https://github.com/migueldeicaza/SwiftGodotKit", branch:  "main" )
-        .package(url:  "https://github.com/migueldeicaza/SwiftGodot", branch: "main")
+        .package(url:   "https://github.com/Maxim-Lanskoy/SwiftGodot", branch: "rpc-macro")
     ],
     targets: [
         .target(

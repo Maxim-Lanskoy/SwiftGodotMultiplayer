@@ -79,7 +79,7 @@ public class PlayerInventory {
         moveAmount = min(moveAmount, fromSlot.quantity)
 
         // Get item reference for validation
-        guard let item = ItemDatabase.shared.getItem(fromSlot.itemId) else {
+        guard let item = ItemDatabase.shared?.getItem(fromSlot.itemId) else {
             return false
         }
 
@@ -122,7 +122,7 @@ public class PlayerInventory {
 
         // If items are the same and stackable, try to stack them
         if fromSlot.itemId == toSlot.itemId && !fromSlot.isEmpty() && !toSlot.isEmpty() {
-            if let item = ItemDatabase.shared.getItem(fromSlot.itemId), item.stackable {
+            if let item = ItemDatabase.shared?.getItem(fromSlot.itemId), item.stackable {
                 let totalQuantity = fromSlot.quantity + toSlot.quantity
                 if totalQuantity <= item.maxStack {
                     // Can stack everything in one slot

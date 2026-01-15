@@ -1,24 +1,21 @@
 import SwiftGodot
 
-// Main menu UI for hosting/joining games
+/// Main menu UI for hosting/joining games
 @Godot
 public class MainMenuUI: Control {
-    // Signals
+    // MARK: - Node References
+
+    @Node("MainContainer/MainMenu/Option1/NickInput") var nickInput: LineEdit?
+    @Node("MainContainer/MainMenu/Option2/SkinInput") var skinInput: LineEdit?
+    @Node("MainContainer/MainMenu/Option3/AddressInput") var addressInput: LineEdit?
+
+    // MARK: - Signals
+
     @Signal var hostPressed: SignalWithArguments<String, String>
     @Signal var joinPressed: SignalWithArguments<String, String, String>
     @Signal var quitPressed: SimpleSignal
 
-    // Node references - set via editor or found at runtime
-    private var skinInput: LineEdit?
-    private var nickInput: LineEdit?
-    private var addressInput: LineEdit?
-
-    public override func _ready() {
-        // Find input nodes
-        skinInput = getNode(path: "MainContainer/MainMenu/Option2/SkinInput") as? LineEdit
-        nickInput = getNode(path: "MainContainer/MainMenu/Option1/NickInput") as? LineEdit
-        addressInput = getNode(path: "MainContainer/MainMenu/Option3/AddressInput") as? LineEdit
-    }
+    // MARK: - Button Handlers
 
     @Callable
     public func onHostPressed() {
@@ -40,6 +37,8 @@ public class MainMenuUI: Control {
         quitPressed.emit()
     }
 
+    // MARK: - Public Methods
+
     public func showMenu() {
         show()
     }
@@ -51,6 +50,8 @@ public class MainMenuUI: Control {
     public func isMenuVisible() -> Bool {
         return visible
     }
+
+    // MARK: - Accessors
 
     public func getNickname() -> String {
         return nickInput?.text.trimmingCharacters(in: .whitespaces) ?? ""

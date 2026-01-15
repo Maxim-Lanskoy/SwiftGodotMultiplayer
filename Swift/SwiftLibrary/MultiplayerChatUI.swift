@@ -1,27 +1,29 @@
 import SwiftGodot
 
-// Multiplayer chat UI component
+/// Multiplayer chat UI component
 @Godot
 public class MultiplayerChatUI: Control {
-    // Node references
-    private var messageInput: LineEdit?
-    private var sendButton: Button?
-    private var chatDisplay: TextEdit?
+    // MARK: - Node References
 
-    // Signals
+    @Node("Panel/MarginContainer/VBoxContainer/HBoxContainer/Message") var messageInput: LineEdit?
+    @Node("Panel/MarginContainer/VBoxContainer/HBoxContainer/Send") var sendButton: Button?
+    @Node("Panel/MarginContainer/VBoxContainer/Chat") var chatDisplay: TextEdit?
+
+    // MARK: - Signals
+
     @Signal var messageSent: SignalWithArguments<String>
 
-    // State
+    // MARK: - Private State
+
     private var chatVisible = false
 
-    public override func _ready() {
-        // Find child nodes
-        messageInput = getNode(path: "Panel/MarginContainer/VBoxContainer/HBoxContainer/Message") as? LineEdit
-        sendButton = getNode(path: "Panel/MarginContainer/VBoxContainer/HBoxContainer/Send") as? Button
-        chatDisplay = getNode(path: "Panel/MarginContainer/VBoxContainer/Chat") as? TextEdit
+    // MARK: - Lifecycle
 
-        // Connect signals
-        sendButton?.pressed.connect(onSendPressed)
+    public override func _ready() {
+        // Connect signals with weak self to avoid retain cycles
+        sendButton?.pressed.connect { [weak self] in
+            self?.onSendPressed()
+        }
         messageInput?.textSubmitted.connect { [weak self] _ in
             self?.onSendPressed()
         }
@@ -30,12 +32,14 @@ public class MultiplayerChatUI: Control {
         hide()
     }
 
+    // MARK: - Public Methods
+
     public func toggleChat() {
         chatVisible = !chatVisible
         if chatVisible {
             show()
             // Grab focus after a frame
-            callDeferred(method: "grabMessageFocus")
+            _ = callDeferred(method: "grabMessageFocus")
         } else {
             hide()
             messageInput?.text = ""
@@ -43,26 +47,8 @@ public class MultiplayerChatUI: Control {
         }
     }
 
-    @Callable
-    func grabMessageFocus() {
-        messageInput?.grabFocus()
-    }
-
     public func isChatVisible() -> Bool {
         return chatVisible
-    }
-
-    func onSendPressed() {
-        guard let text = messageInput?.text else { return }
-        let messageText = text.trimmingCharacters(in: .whitespaces)
-        if messageText.isEmpty {
-            return
-        }
-
-        messageSent.emit(messageText)
-
-        messageInput?.text = ""
-        messageInput?.grabFocus()
     }
 
     public func sendMessage() {
@@ -80,6 +66,30 @@ public class MultiplayerChatUI: Control {
         limitChatHistory()
     }
 
+    public func clearChat() {
+        chatDisplay?.text = ""
+    }
+
+    // MARK: - Private Methods
+
+    @Callable
+    func grabMessageFocus() {
+        messageInput?.grabFocus()
+    }
+
+    private func onSendPressed() {
+        guard let text = messageInput?.text else { return }
+        let messageText = text.trimmingCharacters(in: .whitespaces)
+        if messageText.isEmpty {
+            return
+        }
+
+        messageSent.emit(messageText)
+
+        messageInput?.text = ""
+        messageInput?.grabFocus()
+    }
+
     private func limitChatHistory() {
         guard let chat = chatDisplay else { return }
         let lines = chat.text.split(separator: "\n", omittingEmptySubsequences: false)
@@ -87,9 +97,5 @@ public class MultiplayerChatUI: Control {
             let startIndex = lines.count - 100
             chat.text = lines.suffix(from: startIndex).joined(separator: "\n")
         }
-    }
-
-    public func clearChat() {
-        chatDisplay?.text = ""
     }
 }
