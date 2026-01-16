@@ -8,7 +8,6 @@ public class Icon2D: Sprite2D {
         guard let image = GD.load(path: "res://icon.svg") as? Texture2D else {
             fatalError("Could not load res://icon.svg")
         }
-
         texture = image
         scale = .init(x: 0.25, y: 0.25)
     }
