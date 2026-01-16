@@ -93,6 +93,9 @@ make all
 # Open Godot project
 make open
 
+# Start headless dedicated server
+make server
+
 # Run standalone (SwiftGodotKit)
 make run
 
@@ -101,6 +104,21 @@ make clean
 ```
 
 Or use the Godot editor plugin: **Swift** tab > **Rebuild**
+
+### Running a Dedicated Server
+
+Start a headless server that clients can connect to:
+
+```bash
+cd Swift
+make server    # Starts on port 8080, max 10 players
+```
+
+Or use the shell script directly:
+```bash
+cd Godot
+./run_server.sh /path/to/godot
+```
 
 ### Environment Configuration
 

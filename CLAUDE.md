@@ -52,6 +52,7 @@ make build     # Build Swift library only
 make build-all # Build library + standalone executable
 make deploy    # Copy libraries to Godot/bin
 make open      # Open Godot project
+make server    # Start headless dedicated server
 make run       # Run standalone with SwiftGodotKit
 make paths     # Show configured paths
 make clean     # Remove build artifacts

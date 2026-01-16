@@ -111,6 +111,15 @@ open:
 	@echo "$(BOLD)$(CYAN)$(GEAR) Opening Godot project...$(RESET)"
 	@$(GODOT) $(GODOT_PROJECT_FILE_PATH) &
 
+.PHONY: server
+server:
+	@echo "$(BOLD)$(CYAN)$(GEAR) Starting headless server...$(RESET)"
+	@echo "$(BOLD)────────────────────────────────────────────$(RESET)"
+	@echo "  Port: 8080 | Max Players: 10"
+	@echo "  Press Ctrl+C to stop"
+	@echo ""
+	@$(GODOT) --headless --path $(GODOT_PROJECT_DIRECTORY)
+
 .PHONY: pack
 pack:
 	@echo "$(BOLD)$(CYAN)$(GEAR) Creating resource pack...$(RESET)"
@@ -147,6 +156,7 @@ help:
 	@echo "$(YELLOW)make pack$(RESET)     Create .pck resource file"
 	@echo "$(YELLOW)make run$(RESET)      Run standalone executable"
 	@echo "$(YELLOW)make open$(RESET)     Open Godot project"
+	@echo "$(YELLOW)make server$(RESET)   Start headless dedicated server"
 	@echo "$(YELLOW)make clean$(RESET)    Remove build artifacts"
 	@echo "$(YELLOW)make paths$(RESET)    Show configuration"
 	@echo "$(YELLOW)make help$(RESET)     Show this help"
