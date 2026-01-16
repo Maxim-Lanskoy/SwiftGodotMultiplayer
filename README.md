@@ -4,7 +4,7 @@ A multiplayer game project using [SwiftGodot](https://github.com/migueldeicaza/S
 
 ## Project Overview
 
-This project aims to implement a multiplayer game using SwiftGodot, migrating an existing GDScript multiplayer template to Swift while following best practices from community examples.
+A multiplayer game template using SwiftGodot, featuring ENet networking, server-authoritative inventory, real-time chat, and player customization.
 
 ### Features
 
@@ -46,14 +46,6 @@ SwiftGodotMultiplayer/
 │   ├── addons/swift/         # Editor plugin for Swift rebuilds
 │   └── bin/                  # Built Swift libraries destination
 │       └── SwiftLibrary.gdextension
-│
-├── GDScript/                 # Reference: GDScript multiplayer implementation
-│   ├── scripts/              # All GDScript source files
-│   │   ├── network.gd        # Network/connection management
-│   │   ├── player.gd         # Player controller with inventory
-│   │   ├── level.gd          # Level management
-│   │   └── ...               # Other game scripts
-│   └── scenes/               # Godot scene files
 │
 └── StarterKitSwift/          # Reference: SwiftGodot 3D Platformer example
     └── source/               # Swift source code examples
@@ -244,12 +236,6 @@ items[newItem.id] = newItem
 2. Add `@Godot` macro
 3. Register in `SwiftLibrary.swift` types array
 4. `make all`
-
-## Reference Projects
-
-- **GDScript/**: Original GDScript multiplayer template
-- **StarterKitSwift/**: SwiftGodot patterns and examples
-- **SwiftGodotTemplate/**: Editor plugin template
 
 ## Resources
 

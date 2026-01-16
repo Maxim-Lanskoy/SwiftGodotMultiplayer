@@ -38,9 +38,8 @@ SwiftGodotMultiplayer/
 │           ├── MainMenuUI.swift      # Host/join menu
 │           └── MultiplayerChatUI.swift # Chat panel
 ├── Godot/            # Godot project that loads the Swift GDExtension
-├── GDScript/         # Reference: Original multiplayer implementation
 ├── StarterKitSwift/  # Reference: SwiftGodot code patterns
-└── SwiftGodot.docc/  # Godot project
+└── SwiftGodot.docc/  # SwiftGodot documentation
 ```
 
 ## Build Commands
