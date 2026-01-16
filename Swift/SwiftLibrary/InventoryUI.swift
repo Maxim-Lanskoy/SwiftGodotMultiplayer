@@ -156,8 +156,11 @@ public class InventoryUI: Control {
     // MARK: - Public Methods
 
     public func updateInventoryDisplay() {
-        guard let player = currentPlayer else {
-            // No player set - this is normal during initialization
+        guard let player = currentPlayer, player.isInsideTree() else {
+            // No player or player was freed - clear reference
+            if currentPlayer != nil {
+                clearPlayer()
+            }
             return
         }
 
@@ -193,7 +196,28 @@ public class InventoryUI: Control {
         visible = false
     }
 
+    /// Clears the player reference. Call when player disconnects to prevent dangling reference.
+    public func clearPlayer() {
+        currentPlayer = nil
+        clearHeldState()
+        if visible {
+            visible = false
+            inventoryClosed.emit()
+        }
+    }
+
+    /// Checks if the current player reference is still valid (in scene tree).
+    public func isPlayerValid() -> Bool {
+        guard let player = currentPlayer else { return false }
+        return player.isInsideTree()
+    }
+
     public func refreshDisplay() {
+        // Safety check before refreshing
+        guard isPlayerValid() else {
+            clearPlayer()
+            return
+        }
         updateInventoryDisplay()
     }
 
