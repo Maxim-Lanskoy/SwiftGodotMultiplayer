@@ -1,6 +1,12 @@
+//
+//  MainMenuUI.swift
+//  SwiftGodotMultiplayer
+//
+// Main menu with nickname, skin color, and address inputs. Emits host/join/quit signals.
+
 import SwiftGodot
 
-/// Main menu UI for hosting/joining games
+/// Main menu - host/join/quit with nickname and skin selection.
 @Godot
 public class MainMenuUI: Control {
     // MARK: - Node References

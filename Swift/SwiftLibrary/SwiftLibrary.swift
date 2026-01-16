@@ -1,3 +1,10 @@
+//
+//  SwiftLibrary.swift
+//  SwiftGodotMultiplayer
+//
+// GDExtension entry point - registers all Swift types with Godot.
+// Add new @Godot classes to the types array below.
+
 import SwiftGodot
 
 #initSwiftExtension(

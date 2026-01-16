@@ -1,6 +1,11 @@
-import SwiftGodot
+//
+//  PlayerInventory.swift
+//  SwiftGodotMultiplayer
+//
+// Inventory grid (20 slots, 4x5) - add/remove/move/swap items, stacking,
+// serialization for network sync.
 
-// Player inventory system - manages a grid of inventory slots
+import SwiftGodot
 public class PlayerInventory {
     public static let inventorySize = 20  // 4x5 grid
     public var slots: [InventorySlot] = []

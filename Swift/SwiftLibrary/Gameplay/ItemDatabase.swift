@@ -1,6 +1,12 @@
+//
+//  ItemDatabase.swift
+//  SwiftGodotMultiplayer
+//
+// Item registry singleton - stores all item definitions, configured as Godot Autoload.
+
 import SwiftGodot
 
-/// Singleton database containing all item definitions.
+/// Item database - query items by ID, add sample items in createSampleItems().
 ///
 /// This class is registered as an Engine singleton and provides centralized access
 /// to item data throughout the game. Items are loaded at startup and can be

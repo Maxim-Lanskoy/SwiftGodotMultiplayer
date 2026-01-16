@@ -1,7 +1,13 @@
+//
+//  InventoryUI.swift
+//  SwiftGodotMultiplayer
+//
+// Inventory panel with click-to-move system (drag-drop crashes in SwiftGodot),
+// cursor preview, tooltips, and held item state management.
+
 import SwiftGodot
 
-/// Inventory UI panel with grid of slots
-/// Uses click-to-move system instead of drag-drop due to SwiftGodot virtual method crash
+/// Inventory panel - click-to-move items, tooltips, player disconnect handling.
 @Godot
 public class InventoryUI: Control {
     // MARK: - Node References

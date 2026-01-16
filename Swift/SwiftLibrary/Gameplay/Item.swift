@@ -1,6 +1,11 @@
-import SwiftGodot
+//
+//  Item.swift
+//  SwiftGodotMultiplayer
+//
+// Item data model with type (weapon/armor/consumable/tool/misc),
+// rarity (common-legendary), stacking rules, and serialization.
 
-// Item type categories
+import SwiftGodot
 public enum ItemType: Int, CaseIterable {
     case weapon = 0
     case armor = 1

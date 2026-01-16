@@ -1,6 +1,10 @@
-import SwiftGodot
+//
+//  InventorySlot.swift
+//  SwiftGodotMultiplayer
+//
+// Single inventory slot - holds item ID and quantity, supports add/remove/clear.
 
-// Inventory slot data model
+import SwiftGodot
 public class InventorySlot {
     public var itemId: String = ""
     public var quantity: Int = 0

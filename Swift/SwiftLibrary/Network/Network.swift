@@ -1,8 +1,15 @@
+//
+//  Network.swift
+//  SwiftGodotMultiplayer
+//
+// ENet multiplayer manager - handles host/join, player tracking, connection
+// timeout (10s), and network signals. Configure as Godot Autoload.
+
 import SwiftGodot
 
 // MARK: - Player Skin Color
 
-/// Player skin color options for character customization.
+/// Player skin color options (blue/yellow/green/red).
 public enum SkinColor: Int, CaseIterable {
     case blue = 0
     case yellow = 1

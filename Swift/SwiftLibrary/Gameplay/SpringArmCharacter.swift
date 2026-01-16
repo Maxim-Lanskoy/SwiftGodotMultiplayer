@@ -1,6 +1,10 @@
-import SwiftGodot
+//
+//  SpringArmCharacter.swift
+//  SwiftGodotMultiplayer
+//
+// Third-person camera controller with mouse look and spring arm collision.
 
-// Camera controller with spring arm for third-person view
+import SwiftGodot
 @Godot
 public class SpringArmCharacter: Node3D {
     private let mouseSensitivity: Float = 0.005

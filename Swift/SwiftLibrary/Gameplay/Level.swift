@@ -1,7 +1,14 @@
+//
+//  Level.swift
+//  SwiftGodotMultiplayer
+//
+// Game scene manager - coordinates player spawning via MultiplayerSpawner,
+// UI state (menu/chat/inventory), and network event handling.
+
 import SwiftGodot
 import Foundation
 
-/// Main game level manager handling player spawning, UI, and game state.
+/// Main game level manager - player spawning, UI coordination, network events.
 ///
 /// This class is the central coordinator for the game scene, managing:
 /// - Player spawning and removal based on network events

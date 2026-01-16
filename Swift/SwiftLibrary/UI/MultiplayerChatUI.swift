@@ -1,6 +1,12 @@
+//
+//  MultiplayerChatUI.swift
+//  SwiftGodotMultiplayer
+//
+// Chat panel - toggleable via Tab, emits messageSent signal, limits history to 100 lines.
+
 import SwiftGodot
 
-/// Multiplayer chat UI component
+/// Chat panel - toggle visibility, send messages, display with timestamps.
 @Godot
 public class MultiplayerChatUI: Control {
     // MARK: - Node References

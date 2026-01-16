@@ -1,6 +1,14 @@
+//
+//  Character.swift
+//  SwiftGodotMultiplayer
+//
+// Player controller with multiplayer support - movement, animations,
+// server-authoritative inventory (RPC), skin sync, and chat via
+// MultiplayerSynchronizer properties.
+
 import SwiftGodot
 
-/// Player character controller with multiplayer support
+/// Player character - movement, inventory RPC, skin/chat sync.
 @Godot
 public class Character: CharacterBody3D {
     // MARK: - Constants

@@ -1,7 +1,12 @@
+//
+//  Body.swift
+//  SwiftGodotMultiplayer
+//
+// Animation controller for player model - handles idle, run, sprint, jump,
+// fall animations and smooth rotation based on movement direction.
+
 import SwiftGodot
 import Foundation
-
-// Animation controller for the 3D robot character model
 @Godot
 public class Body: Node3D {
     private let lerpVelocity: Float = 0.15

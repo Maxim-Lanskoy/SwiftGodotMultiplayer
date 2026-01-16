@@ -1,8 +1,12 @@
+//
+//  InventorySlotUI.swift
+//  SwiftGodotMultiplayer
+//
+// Single inventory slot UI - displays item icon/quantity, emits click/hover signals.
+
 import SwiftGodot
 
-/// Individual inventory slot UI component with click-to-move support
-/// NOTE: Godot's drag-drop virtual methods (_getDragData, _canDropData, _dropData)
-/// crash in SwiftGodot, so we use a click-based system instead
+/// Slot UI component - click signals, hover highlight, rarity border colors.
 @Godot
 public class InventorySlotUI: Control {
     // MARK: - Node References

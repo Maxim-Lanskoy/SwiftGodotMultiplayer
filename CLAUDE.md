@@ -1,27 +1,47 @@
 # CLAUDE.md - Project Context for AI Assistants
 
-## Project Goal
+## Project Overview
 
-Migrate a GDScript multiplayer game template to Swift using SwiftGodot GDExtension bindings, combining best practices from reference projects while maintaining the existing Makefile-based workflow and integrating the Godot editor rebuild plugin.
+A complete multiplayer game template using SwiftGodot - Swift bindings for Godot 4.5+ via GDExtension. Features ENet networking, server-authoritative inventory, real-time chat, and player customization.
 
 ## Technology Stack
 
-- **Game Engine**: Godot 4.5 (GDExtension system)
-- **Language**: Swift 5.9+ via SwiftGodot bindings
-- **Build System**: Swift Package Manager + Makefile
-- **Networking**: ENet multiplayer (fully implemented in Swift)
+- **Engine**: Godot 4.5+ (GDExtension)
+- **Language**: Swift 5.9+ via SwiftGodot
+- **Build**: Swift Package Manager + Makefile
+- **Networking**: ENet multiplayer with MultiplayerSpawner/Synchronizer
 
-## Key Directories
+## Directory Structure
 
-| Directory | Purpose |
-|-----------|---------|
-| `Swift/` | Main Swift SPM package for the game |
-| `Swift/SwiftLibrary/` | Game implementation source files |
-| `Godot/` | Godot project that loads the Swift GDExtension |
-| `GDScript/` | Reference: Original multiplayer implementation |
-| `StarterKitSwift/` | Reference: SwiftGodot code patterns |
-| `SwiftGodotTemplate/` | Reference: Original editor plugin template |
-| `SwiftGodot.docc/` | SwiftGodot documentation bundle |
+```
+SwiftGodotMultiplayer/
+├── Swift/                      # Swift SPM package
+│   ├── Package.swift
+│   ├── Makefile               # Build automation
+│   ├── .env                   # Build configuration
+│   └── SwiftLibrary/          # GDExtension library
+│       ├── SwiftLibrary.swift # Entry point, type registration
+│       ├── Network/           # Networking layer
+│       │   └── Network.swift  # Connection management, ENet
+│       ├── Gameplay/          # Game logic
+│       │   ├── Level.swift    # Scene manager, player spawning
+│       │   ├── Character.swift # Player controller, inventory RPC
+│       │   ├── Body.swift     # Animation controller
+│       │   ├── SpringArmCharacter.swift # Camera controller
+│       │   ├── PlayerInventory.swift    # Inventory grid (20 slots)
+│       │   ├── InventorySlot.swift      # Slot data model
+│       │   ├── Item.swift     # Item data model
+│       │   └── ItemDatabase.swift # Item registry singleton
+│       └── UI/                # User interface
+│           ├── InventoryUI.swift     # Inventory panel
+│           ├── InventorySlotUI.swift # Slot UI component
+│           ├── MainMenuUI.swift      # Host/join menu
+│           └── MultiplayerChatUI.swift # Chat panel
+├── Godot/            # Godot project that loads the Swift GDExtension
+├── GDScript/         # Reference: Original multiplayer implementation
+├── StarterKitSwift/  # Reference: SwiftGodot code patterns
+└── SwiftGodot.docc/  # Godot project
+```
 
 ## Build Commands
 
@@ -37,145 +57,82 @@ make paths     # Show configured paths
 make clean     # Remove build artifacts
 ```
 
-## Current Swift Implementation
+## Multiplayer Architecture
 
-### Source Files
+### Overview
 
-| File | Purpose |
-|------|---------|
-| `SwiftLibrary.swift` | Entry point, type registration |
-| `Network.swift` | Connection management, ENet peer handling |
-| `Level.swift` | Player spawning, game state, chat handling |
-| `Character.swift` | Player controller with server-authoritative inventory |
-| `PlayerInventory.swift` | Inventory grid system (20 slots) |
-| `InventorySlot.swift` | Single slot data container |
-| `Item.swift` | Item data model with types/rarities |
-| `ItemDatabase.swift` | Singleton item registry |
-| `InventoryUI.swift` | Inventory panel with click-to-move system |
-| `InventorySlotUI.swift` | Individual slot UI component |
-| `MainMenuUI.swift` | Main menu with host/join/quit options |
-| `MultiplayerChatUI.swift` | Real-time chat panel |
+The game uses a client-server architecture with:
+- **ENet** for reliable UDP transport
+- **MultiplayerSpawner** for automatic player replication
+- **MultiplayerSynchronizer** for property sync (position, rotation, skin, chat)
+- **RPC** for server-authoritative inventory operations
 
-### Key Classes
+### Property Sync (MultiplayerSynchronizer)
+
+Properties synced automatically via `player.tscn` MultiplayerSynchronizer:
+- `position`, `rotation` - movement
+- `synced_skin_color` - player appearance
+- `synced_chat_message`, `chat_message_id` - chat messages
 
 ```swift
-// Network singleton - manages ENet connections
-Network.shared?.startHost(nickname: "Host", skinColorStr: "blue")
-Network.shared?.joinGame(nickname: "Player", skinColorStr: "red", address: "127.0.0.1")
-
-// ItemDatabase singleton - item registry
-ItemDatabase.shared?.getItem("iron_sword")
-
-// Character - player controller with inventory RPC
-Character: CharacterBody3D  // @Rpc methods for server-authoritative inventory
-```
-
-## SwiftGodot Patterns
-
-### Class Registration
-
-```swift
-import SwiftGodot
-
-@Godot
-class MyNode: Node3D {
-    @Export var speed: Double = 10.0
-    @Signal var myEvent: SignalWithArguments<Int>
-    @Node("ChildPath") var childNode: Node3D?
-
-    override func _ready() { }
-    override func _physicsProcess(delta: Double) { }
-}
-```
-
-### RPC Methods (Multiplayer)
-
-```swift
-@Godot
-class NetworkedNode: Node {
-    override func _enterTree() {
-        _configureRpc()  // Required for @Rpc methods
-    }
-
-    // Server-authoritative RPC
-    @Rpc(mode: .anyPeer, callLocal: false, transferMode: .reliable)
-    @Callable
-    func requestAction(data: String) {
-        guard multiplayer?.isServer() == true else { return }
-        let senderId = multiplayer?.getRemoteSenderId() ?? 0
-        // Validate and process...
-    }
-
-    // Broadcast to all clients
-    @Rpc(mode: .authority, callLocal: true, transferMode: .reliable)
-    @Callable
-    func syncState(data: VariantDictionary) {
-        // Update local state
-    }
-}
-```
-
-### Calling RPC Methods
-
-```swift
-// Call on specific peer
-_ = rpcId(peerId: 1, method: StringName("requestAction"), Variant("data"))
-
-// Call on all peers (requires authority)
-_ = rpc(method: StringName("syncState"), Variant(dict))
-```
-
-### Singleton Pattern (Godot Autoload)
-
-For Node-derived singletons, use Godot's Autoload system:
-
-```swift
-@Godot
-public class MySingleton: Node {
-    /// Shared instance. Set when Godot instantiates the Autoload.
-    nonisolated(unsafe) public static var shared: MySingleton?
-
-    public override func _ready() {
-        MySingleton.shared = self
-    }
-
-    public override func _exitTree() {
-        if MySingleton.shared === self {
-            MySingleton.shared = nil
+// Character.swift - Synced properties with didSet observers
+@Export var syncedSkinColor: Int = 0 {
+    didSet {
+        if syncedSkinColor != oldValue {
+            applySkinTexture(syncedSkinColor)
         }
     }
 }
 
-// Usage (always use optional chaining)
-MySingleton.shared?.doSomething()
-```
-
-Configure as Autoload in Godot: Project Settings > Autoload > Add the scene/script.
-
-Note: `nonisolated(unsafe)` is needed for Swift 6 concurrency. The `_exitTree()` cleanup prevents dangling pointers if the node is freed.
-
-### Signal Connections with Weak Self
-
-```swift
-override func _ready() {
-    someSignal.connect { [weak self] args in
-        self?.handleSignal(args)
+@Export var syncedChatMessage: String = "" {
+    didSet {
+        if !syncedChatMessage.isEmpty && syncedChatMessage != oldValue {
+            displayChatMessage(syncedChatMessage)
+        }
     }
 }
 ```
 
-## Multiplayer Architecture
+### RPC Configuration
+
+SwiftGodot requires manual RPC configuration via `rpcConfig()`:
+
+```swift
+override func _enterTree() {
+    configureRpcMethods()
+}
+
+private func configureRpcMethods() {
+    func makeRpcConfig(mode: MultiplayerAPI.RPCMode, callLocal: Bool,
+                       transferMode: MultiplayerPeer.TransferMode) -> VariantDictionary {
+        let config = VariantDictionary()
+        config["rpc_mode"] = Variant(mode.rawValue)
+        config["call_local"] = Variant(callLocal)
+        config["transfer_mode"] = Variant(transferMode.rawValue)
+        config["channel"] = Variant(0)
+        return config
+    }
+
+    rpcConfig(method: StringName("request_add_item"),
+              config: Variant(makeRpcConfig(mode: .anyPeer, callLocal: true, transferMode: .reliable)))
+}
+
+@Callable
+@Rpc(mode: .anyPeer, callLocal: true, transferMode: .reliable)
+func requestAddItem(itemId: String, quantity: Int = 1) {
+    // Server validates and processes
+}
+```
 
 ### Server-Authoritative Inventory
 
-1. Client sends request via RPC: `requestAddItem`, `requestRemoveItem`, `requestMoveItem`
-2. Server validates request (checks ownership, item existence)
+1. Client calls `sendRequestAddItem()` which routes to server via RPC
+2. Server validates request (ownership, quantity limits)
 3. Server modifies inventory
-4. Server syncs back to client via `receiveInventorySync`
-
-### RPC Validation Pattern
+4. Server syncs back via `syncInventoryToOwner` RPC
 
 ```swift
+// Validation pattern
 private enum RpcValidationResult {
     case allowed
     case denied(reason: String)
@@ -184,25 +141,29 @@ private enum RpcValidationResult {
 
 private func validateInventoryRequest(allowServer: Bool = false) -> RpcValidationResult {
     guard multiplayer?.isServer() == true else { return .notServer }
-    let requestingClient = multiplayer?.getRemoteSenderId() ?? 0
-    let isLocalCall = requestingClient == 0
-    let isFromOwner = requestingClient == getMultiplayerAuthority()
-    let isFromServer = requestingClient == 1
-    if isLocalCall || isFromOwner || (allowServer && isFromServer) { return .allowed }
+    let senderId = multiplayer?.getRemoteSenderId() ?? 0
+    let isLocalCall = senderId == 0
+    let isFromOwner = senderId == getMultiplayerAuthority()
+    if isLocalCall || isFromOwner || (allowServer && senderId == 1) { return .allowed }
     return .denied(reason: "Unauthorized")
 }
 ```
 
-### Network Events
+### Connection Handling
 
 ```swift
-// Server-side player events
-Network.shared?.playerConnected.connect { peerId, playerInfo in
-    // Spawn player character
+// Network.swift - Connection with timeout
+public func joinGame(nickname: String, skinColorStr: String, address: String) -> GodotError {
+    // ... setup peer ...
+    isConnecting = true
+    startConnectionTimeout()  // 10 second timeout
+    return .ok
 }
-multiplayer?.peerDisconnected.connect { id in
-    // Remove player character
-}
+
+// Signals
+@Signal var playerConnected: SignalWithArguments<Int, VariantDictionary>
+@Signal var serverDisconnected: SimpleSignal
+@Signal var connectionAttemptFailed: SimpleSignal
 ```
 
 ## GDExtension Configuration
@@ -235,33 +196,41 @@ export LIBRARY_NAME=$(PROJECT_NAME)
 export EXECUTABLE_NAME=MultiplayerSwift
 ```
 
-## Editor Plugin Integration
+## SwiftGodot Patterns
 
-The Swift editor plugin at `Godot/addons/swift/`:
+### Singleton (Godot Autoload)
 
-| File | Purpose |
-|------|---------|
-| `plugin.cfg` | Plugin metadata |
-| `swift_plugin.gd` | Main editor plugin (adds "Swift" tab) |
-| `swift_panel.gd` | Build panel logic |
-| `swift_panel.tscn` | Panel UI |
+```swift
+@Godot
+public class Network: Node {
+    nonisolated(unsafe) public static var shared: Network?
 
-**Features:**
-- Adds a **Swift** tab to the Godot editor
-- **Rebuild** button compiles Swift and deploys to `bin/`
-- **Clean** checkbox runs `swift package clean` before build
-- Automatically restarts editor after successful build
-- Uses same build directory as Makefile (`Swift/.build`)
+    public override func _ready() {
+        Network.shared = self
+    }
 
-## Debug Keys
+    public override func _exitTree() {
+        if Network.shared === self { Network.shared = nil }
+    }
+}
+// Usage: Network.shared?.startHost(...)
+```
 
-| Key | Action |
-|-----|--------|
-| F1 | Add random test item to inventory |
-| F2 | Print inventory contents to console |
-| Tab | Toggle multiplayer chat |
-| I | Toggle inventory panel |
-| Escape | Close inventory / cancel held item |
+### Signal Connections (Weak Self)
+
+```swift
+override func _ready() {
+    Network.shared?.playerConnected.connect { [weak self] peerId, info in
+        self?.onPlayerConnected(peerId: peerId, playerInfo: info)
+    }
+}
+```
+
+### Node References
+
+```swift
+@Node("Path/To/Child") var childNode: SomeNode?
+```
 
 ## Common Tasks
 
@@ -302,16 +271,14 @@ items[newItem.id] = newItem
 
 ## Important Notes
 
-- SwiftGodot requires Swift 5.9+ (Xcode 15+)
-- Always call `_configureRpc()` in `_enterTree()` for classes with `@Rpc` methods
-- Use optional chaining for singletons: `Network.shared?.method()`
-- Use `[weak self]` in signal closures to avoid retain cycles
-- RPC validation: always check `multiplayer?.isServer()` and sender authority
-- The `bin/` folder needs both `libSwiftLibrary.dylib` and `libSwiftGodot.dylib`
+- Use `[weak self]` in signal closures
+- RPC requires both `@Callable` and `@Rpc` macros
+- Call `rpcConfig()` in `_enterTree()` for each RPC method
+- Use optional chaining: `Network.shared?.method()`
+- `nonisolated(unsafe)` for Swift 6 static singletons
 
 ## Reference Links
 
-- [SwiftGodot GitHub](https://github.com/migueldeicaza/SwiftGodot)
+- [SwiftGodot](https://github.com/migueldeicaza/SwiftGodot)
 - [SwiftGodot Docs](https://migueldeicaza.github.io/SwiftGodotDocs/documentation/swiftgodot/)
-- [SwiftGodot Tutorials](https://migueldeicaza.github.io/SwiftGodotDocs/tutorials/swiftgodot-tutorials/)
-- [Godot Multiplayer Docs](https://docs.godotengine.org/en/stable/tutorials/networking/high_level_multiplayer.html)
+- [Godot Multiplayer](https://docs.godotengine.org/en/stable/tutorials/networking/high_level_multiplayer.html)
