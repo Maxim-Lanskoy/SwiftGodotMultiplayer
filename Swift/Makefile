@@ -91,12 +91,12 @@ deploy:
 	@echo "$(BOLD)$(CYAN)$(GEAR) Deploying libraries...$(RESET)"
 	@echo "$(BOLD)────────────────────────────────────────────$(RESET)"
 	@mkdir -p $(GODOT_BIN_PATH)
-	@rm -f $(GODOT_BIN_PATH)/SwiftGodot.dylib
-	@rm -f $(GODOT_BIN_PATH)/SwiftLibrary.dylib
-	@cp $(BUILD_PATH)/debug/libSwiftGodot.dylib $(GODOT_BIN_PATH)/SwiftGodot.dylib
-	@echo "  $(ARROW) SwiftGodot.dylib"
-	@cp $(BUILD_PATH)/debug/libSwiftLibrary.dylib $(GODOT_BIN_PATH)/SwiftLibrary.dylib
-	@echo "  $(ARROW) SwiftLibrary.dylib"
+	@rm -f $(GODOT_BIN_PATH)/libSwiftGodot.dylib
+	@rm -f $(GODOT_BIN_PATH)/libSwiftLibrary.dylib
+	@cp $(BUILD_PATH)/debug/libSwiftGodot.dylib $(GODOT_BIN_PATH)/libSwiftGodot.dylib
+	@echo "  $(ARROW) libSwiftGodot.dylib"
+	@cp $(BUILD_PATH)/debug/libSwiftLibrary.dylib $(GODOT_BIN_PATH)/libSwiftLibrary.dylib
+	@echo "  $(ARROW) libSwiftLibrary.dylib"
 	@echo "$(GREEN)$(CHECK) Libraries deployed to $(GODOT_BIN_PATH)$(RESET)"
 	@echo ""
 
@@ -110,6 +110,15 @@ run:
 open:
 	@echo "$(BOLD)$(CYAN)$(GEAR) Opening Godot project...$(RESET)"
 	@$(GODOT) $(GODOT_PROJECT_FILE_PATH) &
+
+.PHONY: server
+server:
+	@echo "$(BOLD)$(CYAN)$(GEAR) Starting headless server...$(RESET)"
+	@echo "$(BOLD)────────────────────────────────────────────$(RESET)"
+	@echo "  Port: 8080 | Max Players: 10"
+	@echo "  Press Ctrl+C to stop"
+	@echo ""
+	@$(GODOT) --headless --path $(GODOT_PROJECT_DIRECTORY)
 
 .PHONY: pack
 pack:
@@ -128,8 +137,8 @@ clean:
 	@echo "$(BOLD)────────────────────────────────────────────$(RESET)"
 	@rm -rf $(BUILD_PATH)
 	@echo "  $(ARROW) Removed $(BUILD_PATH)"
-	@rm -f $(GODOT_BIN_PATH)/SwiftGodot.dylib
-	@rm -f $(GODOT_BIN_PATH)/SwiftLibrary.dylib
+	@rm -f $(GODOT_BIN_PATH)/libSwiftGodot.dylib
+	@rm -f $(GODOT_BIN_PATH)/libSwiftLibrary.dylib
 	@echo "  $(ARROW) Removed libraries from $(GODOT_BIN_PATH)"
 	@echo "$(GREEN)$(CHECK) Clean complete$(RESET)"
 	@echo ""
@@ -147,6 +156,7 @@ help:
 	@echo "$(YELLOW)make pack$(RESET)     Create .pck resource file"
 	@echo "$(YELLOW)make run$(RESET)      Run standalone executable"
 	@echo "$(YELLOW)make open$(RESET)     Open Godot project"
+	@echo "$(YELLOW)make server$(RESET)   Start headless dedicated server"
 	@echo "$(YELLOW)make clean$(RESET)    Remove build artifacts"
 	@echo "$(YELLOW)make paths$(RESET)    Show configuration"
 	@echo "$(YELLOW)make help$(RESET)     Show this help"

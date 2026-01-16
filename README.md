@@ -4,7 +4,15 @@ A multiplayer game project using [SwiftGodot](https://github.com/migueldeicaza/S
 
 ## Project Overview
 
-This project aims to implement a multiplayer game using SwiftGodot, migrating an existing GDScript multiplayer template to Swift while following best practices from community examples.
+A multiplayer game template using SwiftGodot, featuring ENet networking, server-authoritative inventory, real-time chat, and player customization.
+
+### Features
+
+- **ENet Multiplayer**: Client-server networking with host/join functionality
+- **Server-Authoritative Inventory**: Secure inventory system with RPC validation
+- **Player Management**: Spawn/despawn with skin customization
+- **Real-time Chat**: Multiplayer chat system
+- **Click-to-Move Inventory UI**: Intuitive item management interface
 
 ## Project Structure
 
@@ -14,10 +22,24 @@ SwiftGodotMultiplayer/
 │   ├── Package.swift         # Swift Package Manager configuration
 │   ├── Makefile              # Build automation (build, deploy, run, pack)
 │   ├── .env                  # Environment variables for Makefile
-│   ├── SwiftLibrary/         # Main GDExtension library
-│   │   └── SwiftLibrary.swift
-│   └── MultiplayerSwift/     # Standalone executable (SwiftGodotKit)
-│       └── MultiplayerSwiftApp.swift
+│   └── SwiftLibrary/         # Main GDExtension library
+│       ├── SwiftLibrary.swift # Entry point, type registration
+│       ├── Network/           # Networking layer
+│       │   └── Network.swift  # Connection management, ENet
+│       ├── Gameplay/          # Game logic
+│       │   ├── Level.swift    # Scene manager, player spawning
+│       │   ├── Character.swift # Player controller, inventory RPC
+│       │   ├── Body.swift     # Animation controller
+│       │   ├── SpringArmCharacter.swift # Camera controller
+│       │   ├── PlayerInventory.swift    # Inventory grid (20 slots)
+│       │   ├── InventorySlot.swift      # Slot data model
+│       │   ├── Item.swift     # Item data model
+│       │   └── ItemDatabase.swift # Item registry singleton
+│       └── UI/                # User interface
+│           ├── InventoryUI.swift     # Inventory panel
+│           ├── InventorySlotUI.swift # Slot UI component
+│           ├── MainMenuUI.swift      # Host/join menu
+│           └── MultiplayerChatUI.swift # Chat panel
 │
 ├── Godot/                    # Godot project directory
 │   ├── project.godot         # Godot project configuration
@@ -25,23 +47,9 @@ SwiftGodotMultiplayer/
 │   └── bin/                  # Built Swift libraries destination
 │       └── SwiftLibrary.gdextension
 │
-├── GDScript/                 # Reference: GDScript multiplayer implementation
-│   ├── scripts/              # All GDScript source files
-│   │   ├── network.gd        # Network/connection management
-│   │   ├── player.gd         # Player controller with inventory
-│   │   ├── level.gd          # Level management
-│   │   └── ...               # Other game scripts
-│   └── scenes/               # Godot scene files
-│
-├── StarterKitSwift/          # Reference: SwiftGodot 3D Platformer example
-│   └── source/               # Swift source code examples
-│       └── Sources/Platformer3D/
-│
-└── SwiftGodotTemplate/       # Reference: Editor plugin template
-    ├── addons/
-    │   ├── swift_godot_editor_plugin/  # Editor rebuild button plugin
-    │   └── swift_godot_extension/      # GDExtension configuration
-    └── swift_godot_game/     # Example SPM project
+└── StarterKitSwift/          # Reference: SwiftGodot 3D Platformer example
+    └── source/               # Swift source code examples
+        └── Sources/Platformer3D/
 ```
 
 ## Quick Start
@@ -77,11 +85,31 @@ make all
 # Open Godot project
 make open
 
+# Start headless dedicated server
+make server
+
 # Run standalone (SwiftGodotKit)
 make run
 
 # Remove build artifacts
 make clean
+```
+
+Or use the Godot editor plugin: **Swift** tab > **Rebuild**
+
+### Running a Dedicated Server
+
+Start a headless server that clients can connect to:
+
+```bash
+cd Swift
+make server    # Starts on port 8080, max 10 players
+```
+
+Or use the shell script directly:
+```bash
+cd Godot
+./run_server.sh /path/to/godot
 ```
 
 ### Environment Configuration
@@ -97,68 +125,123 @@ The `.env` file in the `Swift/` folder configures:
 | `LIBRARY_NAME` | Output library name |
 | `EXECUTABLE_NAME` | Standalone executable name |
 
-## SwiftGodot Overview
+### Test Multiplayer
 
-[SwiftGodot](https://github.com/migueldeicaza/SwiftGodot) provides Swift bindings for Godot 4.4+ using GDExtension:
+1. Godot > Debug > Customize Run Instances > Enable Multiple Instances
+2. Run (F5)
+3. Host on one instance, Join on another
 
-- **No GC Stutters**: Unlike C#, Swift avoids garbage collection frame drops
-- **Two Modes**: GDExtension libraries or embedded Godot via SwiftGodotKit
-- **Multi-Platform**: iOS, macOS, Linux, Windows support
-- **Swift Integration**: Easy access to Apple/Swift native APIs
+## Architecture
 
-### Resources
+### Networking Layer
+
+```
+Server (Host)                    Client (Join)
+     │                                │
+     │◄── ENet Connection ───────────►│
+     │                                │
+     ├── MultiplayerSpawner ─────────►│  (auto-spawn players)
+     │                                │
+     ├── MultiplayerSynchronizer ────►│  (sync position, skin, chat)
+     │                                │
+     │◄── RPC Requests ───────────────┤  (inventory operations)
+     │                                │
+     ├── RPC Responses ──────────────►│  (inventory sync)
+```
+
+### Key Systems
+
+| System | Server | Client | Sync Method |
+|--------|--------|--------|-------------|
+| Player Spawn | Creates Character | Receives via Spawner | MultiplayerSpawner |
+| Movement | - | Local control | MultiplayerSynchronizer |
+| Skin Color | - | Sets property | MultiplayerSynchronizer |
+| Chat | - | Sets property | MultiplayerSynchronizer |
+| Inventory | Validates & modifies | Requests via RPC | RPC |
+
+## Controls
+
+| Key | Action |
+|-----|--------|
+| WASD | Move |
+| Space | Jump (double jump available) |
+| Shift | Sprint |
+| I | Toggle inventory |
+| Tab | Toggle chat |
+| F1 | Debug: Add random item |
+| F2 | Debug: Print inventory |
+| Escape | Close panels |
+
+## Code Examples
+
+### Server-Authoritative RPC
+
+```swift
+// Client sends request
+func sendRequestAddItem(itemId: String, quantity: Int) {
+    if multiplayer?.isServer() == true {
+        requestAddItem(itemId: itemId, quantity: quantity)
+    } else {
+        callRpcId(peerId: 1, method: "request_add_item",
+                  Variant(itemId), Variant(quantity))
+    }
+}
+
+// Server validates and processes
+@Callable @Rpc(mode: .anyPeer, callLocal: true, transferMode: .reliable)
+func requestAddItem(itemId: String, quantity: Int) {
+    switch validateInventoryRequest(allowServer: true) {
+    case .notServer: return
+    case .denied(let reason): GD.pushWarning(reason); return
+    case .allowed: break
+    }
+    // Process request...
+}
+```
+
+### Property Sync for Chat
+
+```swift
+// Synced via MultiplayerSynchronizer in player.tscn
+@Export var syncedChatMessage: String = "" {
+    didSet {
+        if !syncedChatMessage.isEmpty && syncedChatMessage != oldValue {
+            displayChatMessage(syncedChatMessage)
+        }
+    }
+}
+
+func sendChatMessage(_ message: String) {
+    chatMessageId += 1  // Force sync even for same message
+    syncedChatMessage = "\(nickname):\(message)"
+}
+```
+
+## Adding Content
+
+### New Item
+
+```swift
+// ItemDatabase.swift - createSampleItems()
+let newItem = Item(id: "magic_staff", name: "Magic Staff",
+                   description: "Channels arcane energy",
+                   stackable: false, itemType: .weapon,
+                   rarity: .epic, value: 500)
+items[newItem.id] = newItem
+```
+
+### New Swift Class
+
+1. Create file in `SwiftLibrary/Gameplay/` or appropriate folder
+2. Add `@Godot` macro
+3. Register in `SwiftLibrary.swift` types array
+4. `make all`
+
+## Resources
 
 - [SwiftGodot Documentation](https://migueldeicaza.github.io/SwiftGodotDocs/documentation/swiftgodot/)
 - [SwiftGodot Tutorials](https://migueldeicaza.github.io/SwiftGodotDocs/tutorials/swiftgodot-tutorials/)
-- [Discord Community](https://discord.gg/bHAsTYaCZM)
-
-## Reference Projects
-
-### GDScript Multiplayer Template
-
-Located in `GDScript/`, this is a complete 3D multiplayer template featuring:
-
-- ENet-based client-server networking
-- Player management with skin selection
-- Real-time movement/animation sync
-- Multiplayer chat system
-- Server-authoritative inventory system
-
-### StarterKitSwift (3D Platformer)
-
-Located in `StarterKitSwift/`, demonstrates SwiftGodot best practices:
-
-- `@Godot` macro for class registration
-- `@Export` for editor-exposed properties
-- `@Signal` for custom signals
-- Proper Swift patterns with Godot node hierarchy
-
-### SwiftGodotTemplate (Editor Plugin)
-
-Located in `SwiftGodotTemplate/`, provides:
-
-- Godot editor tab with "Rebuild" button
-- One-click Swift build and editor reload
-- Clean build option
-- Integrated build logging
-
-## Development Workflow
-
-### Using Makefile (Terminal)
-
-```bash
-cd Swift
-make all    # Build, deploy, pack
-```
-
-### Using Editor Plugin (Recommended)
-
-1. Open `Godot/project.godot` in Godot
-2. Click the **Swift** tab at the top of the editor
-3. Click **Rebuild** to compile and deploy
-4. Editor automatically restarts with updated libraries
-
-The plugin uses the same build directory (`Swift/.build`) as the Makefile.
+- [Godot High-Level Multiplayer](https://docs.godotengine.org/en/stable/tutorials/networking/high_level_multiplayer.html)
 
 ## License
 
@@ -169,4 +252,3 @@ MIT License - See [LICENSE](LICENSE) for details.
 - [SwiftGodot](https://github.com/migueldeicaza/SwiftGodot) by Miguel de Icaza
 - [3D Multiplayer Template](https://godotengine.org/asset-library/asset/3377) by devmoreir4
 - [3D Platformer Starter Kit](https://github.com/lorenalexm/Starter-Kit-3D-Platformer-Swift) by Alex Loren
-- [SwiftGodotTemplate](https://github.com/elijah-semyonov/SwiftGodotTemplate) by Elijah Semyonov
