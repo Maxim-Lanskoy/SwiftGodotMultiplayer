@@ -4766,32 +4766,6 @@ _data = {
 &"WallSlide": SubResource("Animation_ef22y")
 }
 
-[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_wb3a5"]
-properties/0/path = NodePath(".:position")
-properties/0/spawn = true
-properties/0/replication_mode = 1
-properties/1/path = NodePath("3DGodotRobot/AnimationPlayer:current_animation")
-properties/1/spawn = true
-properties/1/replication_mode = 1
-properties/2/path = NodePath("PlayerNick/Nickname:text")
-properties/2/spawn = true
-properties/2/replication_mode = 1
-properties/3/path = NodePath("3DGodotRobot:rotation")
-properties/3/spawn = true
-properties/3/replication_mode = 1
-properties/4/path = NodePath(".:synced_skin_color")
-properties/4/spawn = true
-properties/4/replication_mode = 1
-properties/5/path = NodePath(".:synced_chat_message")
-properties/5/spawn = false
-properties/5/replication_mode = 1
-properties/6/path = NodePath(".:chat_message_id")
-properties/6/spawn = false
-properties/6/replication_mode = 1
-properties/7/path = NodePath(".:synced_nickname")
-properties/7/spawn = true
-properties/7/replication_mode = 1
-
 [node name="Player" type="Character"]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
 collision_mask = 3
@@ -5033,4 +5007,3 @@ outline_modulate = Color(0, 0, 0, 0.301961)
 text = "player name test"
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="."]
-replication_config = SubResource("SceneReplicationConfig_wb3a5")

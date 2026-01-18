@@ -95,8 +95,60 @@ public class Character: CharacterBody3D {
             camera.current = isMultiplayerAuthority()
         }
 
+        // Configure multiplayer synchronization
+        configureMultiplayerSync()
+
         // Manually configure RPC methods
         configureRpcMethods()
+    }
+
+    // MARK: - Multiplayer Sync Configuration
+
+    /// Configures the MultiplayerSynchronizer with properties to replicate.
+    /// This replaces the need for an external SceneReplicationConfig resource.
+    private func configureMultiplayerSync() {
+        guard let sync = getNodeOrNull(path: NodePath("MultiplayerSynchronizer")) as? MultiplayerSynchronizer else {
+            GD.pushWarning("Character: MultiplayerSynchronizer not found")
+            return
+        }
+
+        let config = SceneReplicationConfig()
+
+        // Define all properties to sync
+        // Format: (path, spawn, replicationMode)
+        // replicationMode: 0 = Never, 1 = Always, 2 = OnChange
+        let syncedProperties: [(String, Bool, Int)] = [
+            // Position and rotation
+            (".:position", true, 1),
+            ("3DGodotRobot:rotation", true, 1),
+
+            // Animation
+            ("3DGodotRobot/AnimationPlayer:current_animation", true, 1),
+
+            // Nickname display
+            ("PlayerNick/Nickname:text", true, 1),
+
+            // Synced @Export properties
+            (".:synced_skin_color", true, 1),      // Skin color
+            (".:synced_chat_message", false, 1),   // Chat (no spawn, sync always)
+            (".:chat_message_id", false, 1),       // Chat ID (no spawn, sync always)
+            (".:synced_nickname", true, 1),        // Nickname
+        ]
+
+        for (path, spawn, mode) in syncedProperties {
+            let nodePath = NodePath(path)
+            config.addProperty(path: nodePath, index: -1)
+
+            // Configure spawn and replication mode
+            config.propertySetSpawn(path: nodePath, enabled: spawn)
+            config.propertySetReplicationMode(
+                path: nodePath,
+                mode: SceneReplicationConfig.ReplicationMode(rawValue: Int64(mode)) ?? .always
+            )
+        }
+
+        sync.replicationConfig = config
+        GD.print("Character: Configured MultiplayerSynchronizer with \(syncedProperties.count) properties")
     }
 
     /// Manually configure RPC settings for all @Rpc methods.
@@ -111,9 +163,7 @@ public class Character: CharacterBody3D {
             return config
         }
 
-        // Configure all RPC methods
-        rpcConfig(method: StringName("change_nick"), config: Variant(makeRpcConfig(mode: .anyPeer, callLocal: true, transferMode: .reliable)))
-        rpcConfig(method: StringName("set_player_skin"), config: Variant(makeRpcConfig(mode: .anyPeer, callLocal: true, transferMode: .reliable)))
+        // Configure all RPC methods (inventory operations)
         rpcConfig(method: StringName("request_inventory_sync"), config: Variant(makeRpcConfig(mode: .anyPeer, callLocal: true, transferMode: .reliable)))
         rpcConfig(method: StringName("sync_inventory_to_owner"), config: Variant(makeRpcConfig(mode: .anyPeer, callLocal: true, transferMode: .reliable)))
         rpcConfig(method: StringName("request_move_item"), config: Variant(makeRpcConfig(mode: .anyPeer, callLocal: true, transferMode: .reliable)))
@@ -281,16 +331,6 @@ public class Character: CharacterBody3D {
         velocity = Vector3.zero
     }
 
-    // MARK: - Network RPCs
-
-    /// Changes the player's displayed nickname.
-    /// - Parameter newNick: The new nickname to display.
-    @Callable
-    @Rpc(mode: .anyPeer, callLocal: true, transferMode: .reliable)
-    public func changeNick(newNick: String) {
-        nicknameLabel?.text = newNick
-    }
-
     // MARK: - Chat System
 
     /// Sends a chat message by updating the synced property.
@@ -329,7 +369,7 @@ public class Character: CharacterBody3D {
     // MARK: - Skin Customization
 
     /// Returns the texture for the given skin color.
-    public func getTextureFromSkin(_ skinColor: SkinColor) -> CompressedTexture2D? {
+    private func getTextureFromSkin(_ skinColor: SkinColor) -> CompressedTexture2D? {
         switch skinColor {
         case .blue: return blueTexture
         case .yellow: return yellowTexture
@@ -352,13 +392,6 @@ public class Character: CharacterBody3D {
         setMeshTexture(faceMesh, texture: texture)
         setMeshTexture(limbsHeadMesh, texture: texture)
         GD.print("Character: Applied skin texture for color \(colorId)")
-    }
-
-    /// Sets the player's skin color by updating the synced property.
-    /// - Parameter skinColor: The skin color raw value (from `SkinColor` enum).
-    public func setPlayerSkin(skinColor: Int) {
-        // Update the synced property - this triggers applySkinTexture via didSet
-        syncedSkinColor = skinColor
     }
 
     private func setMeshTexture(_ meshInstance: MeshInstance3D?, texture: CompressedTexture2D) {

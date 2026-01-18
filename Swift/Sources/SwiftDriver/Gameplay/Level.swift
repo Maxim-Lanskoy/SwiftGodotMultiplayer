@@ -44,18 +44,6 @@ public class Level: Node3D {
 
     // MARK: - Lifecycle
 
-    public override func _enterTree() {
-        // Manually configure RPC methods
-        configureRpcMethods()
-    }
-
-    /// Configure any RPC methods if needed.
-    /// Note: Chat now uses MultiplayerSynchronizer instead of RPC.
-    private func configureRpcMethods() {
-        // Chat is now handled via Character's synced properties
-        // No RPC configuration needed for Level
-    }
-
     public override func _ready() {
         // Start dedicated server in headless mode
         if DisplayServer.getName() == "headless" {
@@ -218,8 +206,8 @@ public class Level: Node3D {
 
         // Set player info from network data
         if let playerData = Network.shared?.getPlayers()[id] {
-            player.changeNick(newNick: playerData.nick)
-            player.setPlayerSkin(skinColor: playerData.skin.rawValue)
+            player.syncedNickname = playerData.nick
+            player.syncedSkinColor = playerData.skin.rawValue
             GD.print("Level: Set player \(id) nick to '\(playerData.nick)'")
         } else {
             GD.pushWarning("Level: No player data found for peer \(id)")
