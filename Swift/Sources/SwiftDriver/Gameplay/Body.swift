@@ -21,7 +21,7 @@ public class Body: Node3D {
 
     // MARK: - Node References
 
-    @Node("AnimationPlayer") var animationPlayer: AnimationPlayer?
+    @Node("Model/AnimationPlayer_Medium") var animationPlayer: AnimationPlayer?
 
     // MARK: - Public Methods
 
@@ -44,11 +44,11 @@ public class Body: Node3D {
         // Check if airborne
         if !isOnFloor {
             if velocity.y < 0 {
-                animationPlayer.play(name: "Fall")
+                animationPlayer.play(name: "Character_Medium/Jump_Idle")
             } else {
                 let currentAnim = animationPlayer.currentAnimation
-                if currentAnim != "Jump" && currentAnim != "Jump2" {
-                    animationPlayer.play(name: "Jump")
+                if currentAnim != "Character_Medium/Jump_Start" && currentAnim != "Character_Medium/Jump_Full_Long" {
+                    animationPlayer.play(name: "Character_Medium/Jump_Start")
                 }
             }
             return
@@ -57,20 +57,30 @@ public class Body: Node3D {
         // Check if moving
         if velocity.x != 0 || velocity.z != 0 {
             if isRunning {
-                animationPlayer.play(name: "Sprint")
+                animationPlayer.play(name: "Character_Medium/Running_B")
                 return
             }
-            animationPlayer.play(name: "Run")
+            animationPlayer.play(name: "Character_Medium/Running_A")
             return
         }
 
         // Idle
-        animationPlayer.play(name: "Idle")
+        animationPlayer.play(name: "Character_Medium/Idle_A")
     }
 
     /// Plays a jump animation.
     /// - Parameter jumpType: Animation name ("Jump" or "Jump2" for double jump).
     public func playJumpAnimation(jumpType: String = "Jump") {
-        animationPlayer?.play(name: StringName(jumpType))
+        // Map old animation names to new Mannequin animation names
+        let animName: String
+        switch jumpType {
+        case "Jump":
+            animName = "Character_Medium/Jump_Start"
+        case "Jump2":
+            animName = "Character_Medium/Jump_Full_Long"
+        default:
+            animName = jumpType
+        }
+        animationPlayer?.play(name: StringName(animName))
     }
 }

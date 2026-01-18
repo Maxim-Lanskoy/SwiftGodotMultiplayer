@@ -56,3 +56,4 @@ bones/20/scale = Vector3(1.0000002, 0.9999979, 1.0000024)
 libraries = {
 &"Character_Medium": ExtResource("2_2l5pu")
 }
+autoplay = "Character_Medium/Idle_A"

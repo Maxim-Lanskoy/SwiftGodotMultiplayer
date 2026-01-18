@@ -22,13 +22,15 @@ public class Character: CharacterBody3D {
 
     // MARK: - Node References
 
-    @Node("3DGodotRobot") var body: Body?
+    @Node("Mannequin_Medium") var body: Body?
     @Node("SpringArmOffset") var springArmOffset: SpringArmCharacter?
     @Node("PlayerNick/Nickname") var nicknameLabel: Label3D?
-    @Node("3DGodotRobot/RobotArmature/Skeleton3D/Bottom") var bottomMesh: MeshInstance3D?
-    @Node("3DGodotRobot/RobotArmature/Skeleton3D/Chest") var chestMesh: MeshInstance3D?
-    @Node("3DGodotRobot/RobotArmature/Skeleton3D/Face") var faceMesh: MeshInstance3D?
-    @Node("3DGodotRobot/RobotArmature/Skeleton3D/Llimbs and head") var limbsHeadMesh: MeshInstance3D?
+    @Node("Mannequin_Medium/Model/Rig_Medium/Skeleton3D/Mannequin_Medium_Body") var bodyMesh: MeshInstance3D?
+    @Node("Mannequin_Medium/Model/Rig_Medium/Skeleton3D/Mannequin_Medium_Head") var headMesh: MeshInstance3D?
+    @Node("Mannequin_Medium/Model/Rig_Medium/Skeleton3D/Mannequin_Medium_ArmLeft") var armLeftMesh: MeshInstance3D?
+    @Node("Mannequin_Medium/Model/Rig_Medium/Skeleton3D/Mannequin_Medium_ArmRight") var armRightMesh: MeshInstance3D?
+    @Node("Mannequin_Medium/Model/Rig_Medium/Skeleton3D/Mannequin_Medium_LegLeft") var legLeftMesh: MeshInstance3D?
+    @Node("Mannequin_Medium/Model/Rig_Medium/Skeleton3D/Mannequin_Medium_LegRight") var legRightMesh: MeshInstance3D?
 
     // MARK: - Exports
 
@@ -39,8 +41,8 @@ public class Character: CharacterBody3D {
     @Export var redTexture: CompressedTexture2D?
 
     #exportGroup("Synced Properties")
-    /// Synced skin color (0=blue, 1=yellow, 2=green, 3=red). Automatically applies texture when changed.
-    @Export var syncedSkinColor: Int = 0 {
+    /// Synced skin color (-1=none/multicolor, 0=blue, 1=yellow, 2=green, 3=red). Automatically applies texture when changed.
+    @Export var syncedSkinColor: Int = -1 {
         didSet {
             if syncedSkinColor != oldValue {
                 applySkinTexture(syncedSkinColor)
@@ -120,10 +122,10 @@ public class Character: CharacterBody3D {
         let syncedProperties: [(String, Bool, Int)] = [
             // Position and rotation
             (".:position", true, 1),
-            ("3DGodotRobot:rotation", true, 1),
+            ("Mannequin_Medium:rotation", true, 1),
 
             // Animation
-            ("3DGodotRobot/AnimationPlayer:current_animation", true, 1),
+            ("Mannequin_Medium/Model/AnimationPlayer_Medium:current_animation", true, 1),
 
             // Nickname display
             ("PlayerNick/Nickname:text", true, 1),
@@ -368,39 +370,64 @@ public class Character: CharacterBody3D {
 
     // MARK: - Skin Customization
 
-    /// Returns the texture for the given skin color.
-    private func getTextureFromSkin(_ skinColor: SkinColor) -> CompressedTexture2D? {
+    /// Target hue values for the shader (HSV hue 0.0-1.0, or -1 for original colors)
+    /// These SET the hue of all colored pixels to create uniform team colors
+    private func getTargetHue(_ skinColor: SkinColor) -> Float {
         switch skinColor {
-        case .blue: return blueTexture
-        case .yellow: return yellowTexture
-        case .green: return greenTexture
-        case .red: return redTexture
+        case .none: return -1.0      // Keep original multicolor texture
+        case .blue: return 0.58      // Blue (~210 degrees)
+        case .green: return 0.33     // Green (~120 degrees)
+        case .yellow: return 0.15    // Yellow (~55 degrees)
+        case .red: return 0.0        // Red (0 degrees)
         }
     }
 
-    /// Applies the skin texture based on the color ID.
+    /// Applies the skin color by loading the shader material and setting target_hue.
     /// Called automatically when syncedSkinColor changes.
+    /// If colorId is -1 (none), keeps the original material (no shader applied).
     private func applySkinTexture(_ colorId: Int) {
-        let skin = SkinColor(rawValue: colorId) ?? .blue
-        guard let texture = getTextureFromSkin(skin) else {
-            GD.print("Character: No texture found for skin \(colorId)")
+        let skin = SkinColor(rawValue: colorId) ?? .none
+        let targetHue = getTargetHue(skin)
+
+        // If no color specified, keep original material
+        if targetHue < 0 {
+            GD.print("Character: Keeping original multicolor texture (no skin color specified)")
             return
         }
 
-        setMeshTexture(bottomMesh, texture: texture)
-        setMeshTexture(chestMesh, texture: texture)
-        setMeshTexture(faceMesh, texture: texture)
-        setMeshTexture(limbsHeadMesh, texture: texture)
-        GD.print("Character: Applied skin texture for color \(colorId)")
+        // Load the shader material
+        guard let shaderMaterial = ResourceLoader.load(path: "res://assets/materials/mannequin_color.tres") as? ShaderMaterial else {
+            GD.print("Character: Failed to load shader material")
+            return
+        }
+
+        // Apply shader material with the target hue to all 6 Mannequin mesh parts
+        applyShaderToMesh(bodyMesh, material: shaderMaterial, hue: targetHue)
+        applyShaderToMesh(headMesh, material: shaderMaterial, hue: targetHue)
+        applyShaderToMesh(armLeftMesh, material: shaderMaterial, hue: targetHue)
+        applyShaderToMesh(armRightMesh, material: shaderMaterial, hue: targetHue)
+        applyShaderToMesh(legLeftMesh, material: shaderMaterial, hue: targetHue)
+        applyShaderToMesh(legRightMesh, material: shaderMaterial, hue: targetHue)
+
+        GD.print("Character: Applied skin target hue \(targetHue) for color \(colorId)")
     }
 
-    private func setMeshTexture(_ meshInstance: MeshInstance3D?, texture: CompressedTexture2D) {
-        guard let mesh = meshInstance,
-              let material = mesh.getSurfaceOverrideMaterial(surface: 0) as? StandardMaterial3D else {
+    private func applyShaderToMesh(_ meshInstance: MeshInstance3D?, material: ShaderMaterial, hue: Float) {
+        guard let mesh = meshInstance else {
             return
         }
-        material.albedoTexture = texture
-        mesh.setSurfaceOverrideMaterial(surface: 0, material: material)
+
+        // Clone the material to avoid modifying shared resource
+        guard let clonedMaterial = material.duplicate() as? ShaderMaterial else {
+            GD.print("Character: Failed to clone shader material for \(mesh.name)")
+            return
+        }
+
+        // Set the target hue
+        clonedMaterial.setShaderParameter(param: "target_hue", value: Variant(hue))
+
+        // Apply as surface override
+        mesh.setSurfaceOverrideMaterial(surface: 0, material: clonedMaterial)
     }
 
     // MARK: - Inventory RPC Validation

@@ -37,3 +37,4 @@ bones/22/rotation = Quaternion(0.00018874474, 0.9201331, -0.39160573, -4.1430852
 libraries = {
 &"Character_Large_AnimLibrary": ExtResource("2_a2euh")
 }
+autoplay = "Character_Large_AnimLibrary/Idle_A"

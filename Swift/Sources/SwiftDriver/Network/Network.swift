@@ -9,8 +9,10 @@ import SwiftGodot
 
 // MARK: - Player Skin Color
 
-/// Player skin color options (blue/yellow/green/red).
+/// Player skin color options (none/blue/yellow/green/red).
+/// Use `.none` (-1) to keep the original multicolor texture.
 public enum SkinColor: Int, CaseIterable {
+    case none = -1
     case blue = 0
     case yellow = 1
     case green = 2
@@ -18,14 +20,15 @@ public enum SkinColor: Int, CaseIterable {
 
     /// Creates a SkinColor from a string name.
     /// - Parameter s: Color name (case-insensitive).
-    /// - Returns: Matching color or `.blue` as default.
+    /// - Returns: Matching color, or `.none` for empty/unrecognized (keeps original texture).
     public static func fromString(_ s: String) -> SkinColor {
-        switch s.lowercased() {
+        let trimmed = s.trimmingCharacters(in: .whitespaces).lowercased()
+        switch trimmed {
         case "blue": return .blue
         case "yellow": return .yellow
         case "green": return .green
         case "red": return .red
-        default: return .blue
+        default: return .none  // Empty or unrecognized = keep original multicolor
         }
     }
 }
@@ -224,6 +227,7 @@ public class Network: Node {
     ///   - skinColorStr: Host player's skin color name.
     /// - Returns: Error code (.ok on success).
     public func startHost(nickname: String, skinColorStr: String) -> GodotError {
+        GD.print("Network: startHost() called with nickname='\(nickname)', skin='\(skinColorStr)'")
         let peer = ENetMultiplayerPeer()
         let error = peer.createServer(port: Network.serverPort, maxClients: Network.maxPlayers)
         if error != .ok {
@@ -267,6 +271,7 @@ public class Network: Node {
     ///   - address: Server IP address (defaults to localhost if empty).
     /// - Returns: Error code (.ok on success).
     public func joinGame(nickname: String, skinColorStr: String, address: String = serverAddress) -> GodotError {
+        GD.print("Network: joinGame() called with nickname='\(nickname)', skin='\(skinColorStr)', address='\(address)'")
         // Use default address if empty
         let serverAddr = address.trimmingCharacters(in: .whitespaces).isEmpty ? Network.serverAddress : address
 

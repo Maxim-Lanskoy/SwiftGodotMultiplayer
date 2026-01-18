@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=3 uid="uid://dugaivbj1o66n"]
 
-[ext_resource type="PackedScene" uid="uid://cffjduipbb3s5" path="res://scenes/level/player.tscn" id="1_uvcbi"]
+[ext_resource type="PackedScene" uid="uid://cg6nubwi31x06" path="res://scenes/level/character.tscn" id="1_uvcbi"]
 [ext_resource type="PackedScene" uid="uid://bclq8vh1x2goy" path="res://scenes/ui/inventory_ui.tscn" id="4_x8g2h"]
 [ext_resource type="PackedScene" uid="uid://ccencq0lcd3ph" path="res://scenes/ui/multiplayer_chat_ui.tscn" id="5_x9g3h"]
 [ext_resource type="PackedScene" uid="uid://bx7mq8t8hjn7q" path="res://scenes/ui/main_menu_ui.tscn" id="6_x9g3h"]
@@ -46,7 +46,7 @@ shadow_blur = 0.5
 
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
 spawn_path = NodePath("../PlayersContainer")
-_spawnable_scenes = PackedStringArray("res://scenes/level/player.tscn")
+_spawnable_scenes = PackedStringArray("res://scenes/level/character.tscn")
 
 [node name="MainMenuUI" parent="." instance=ExtResource("6_x9g3h")]
 

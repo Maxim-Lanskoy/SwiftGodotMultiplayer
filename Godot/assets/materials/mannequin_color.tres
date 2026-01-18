@@ -1,0 +1,12 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3]
+
+[ext_resource type="Shader" path="res://assets/materials/mannequin_color.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" uid="uid://bgc3e88timvm4" path="res://assets/textures/Mannequin_texture.png" id="2_texture"]
+
+[resource]
+shader = ExtResource("1_shader")
+shader_parameter/albedo_texture = ExtResource("2_texture")
+shader_parameter/target_hue = -1.0
+shader_parameter/saturation_threshold = 0.15
+shader_parameter/roughness = 0.5
+shader_parameter/metallic = 0.0
