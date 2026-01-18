@@ -1,0 +1,8 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://dccprvwogvgsi"]
+
+[ext_resource type="Texture2D" uid="uid://bgc3e88timvm4" path="res://assets/textures/Mannequin_texture.png" id="1_ayg33"]
+
+[resource]
+resource_name = "Character_Material"
+albedo_texture = ExtResource("1_ayg33")
+roughness = 0.3
