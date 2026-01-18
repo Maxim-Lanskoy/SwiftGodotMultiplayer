@@ -249,6 +249,13 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ## Credits
 
-- [SwiftGodot](https://github.com/migueldeicaza/SwiftGodot) by Miguel de Icaza
+### Core Libraries
+- [SwiftGodot](https://github.com/migueldeicaza/SwiftGodot) by Miguel de Icaza - Swift bindings for Godot
+
+### Build Tools & Editor Integration
+- **Makefile build system** based on [SwiftGodotKick](https://github.com/EstevanBR/SwiftGodotKick) by Estevan Hernandez
+- **Godot Editor Swift Plugin** adapted from [SwiftGodotTemplate](https://github.com/elijah-semyonov/SwiftGodotTemplate) by Elijah Semyonov
+
+### Reference Projects
 - [3D Multiplayer Template](https://godotengine.org/asset-library/asset/3377) by devmoreir4
 - [3D Platformer Starter Kit](https://github.com/lorenalexm/Starter-Kit-3D-Platformer-Swift) by Alex Loren

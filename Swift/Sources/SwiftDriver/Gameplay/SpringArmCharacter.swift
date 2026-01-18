@@ -5,13 +5,26 @@
 // Third-person camera controller with mouse look and spring arm collision.
 
 import SwiftGodot
+
+/// Third-person camera controller with spring arm collision.
+///
+/// Handles mouse-look camera rotation with vertical clamping.
+/// Only processes input when the node has multiplayer authority.
 @Godot
 public class SpringArmCharacter: Node3D {
+    // MARK: - Constants
+
+    /// Mouse sensitivity for camera rotation.
     private let mouseSensitivity: Float = 0.005
 
-    // Node reference - using @Node macro for scene tree binding
+    // MARK: - Node References
+
     @Node("SpringArm3D") var springArm: SpringArm3D?
 
+    // MARK: - Input Handling
+
+    /// Handles unhandled mouse motion input for camera rotation.
+    /// - Parameter event: The input event to process.
     public override func _unhandledInput(event: InputEvent?) {
         guard let event = event as? InputEventMouseMotion,
               isMultiplayerAuthority() else {
@@ -30,8 +43,12 @@ public class SpringArmCharacter: Node3D {
     }
 }
 
-// Extension to add clamped function for Float
+// MARK: - Float Extension
+
 extension Float {
+    /// Clamps the value to the specified range.
+    /// - Parameter range: The closed range to clamp to.
+    /// - Returns: The clamped value.
     func clamped(to range: ClosedRange<Float>) -> Float {
         return Swift.min(Swift.max(self, range.lowerBound), range.upperBound)
     }

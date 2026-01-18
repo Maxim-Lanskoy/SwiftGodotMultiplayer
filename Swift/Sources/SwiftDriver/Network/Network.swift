@@ -110,6 +110,31 @@ public class Network: Node {
     /// Maximum nickname length.
     public static let maxNicknameLength: Int = 32
 
+    // MARK: - Nickname Validation
+
+    /// Validates and sanitizes a nickname.
+    ///
+    /// Removes special characters (allowing only letters, numbers, underscores, and hyphens),
+    /// trims whitespace, and enforces maximum length.
+    ///
+    /// - Parameter nickname: The raw nickname input.
+    /// - Returns: A sanitized nickname, or a default if the result is empty.
+    public static func validateNickname(_ nickname: String) -> String {
+        // Trim whitespace
+        let trimmed = nickname.trimmingCharacters(in: .whitespaces)
+
+        // Filter to allowed characters: letters, numbers, underscore, hyphen
+        let sanitized = trimmed.filter { char in
+            char.isLetter || char.isNumber || char == "_" || char == "-"
+        }
+
+        // Enforce maximum length
+        let limited = String(sanitized.prefix(maxNicknameLength))
+
+        // Return default if empty
+        return limited.isEmpty ? "Player" : limited
+    }
+
     // MARK: - Private State
 
     /// Connected players dictionary [peer_id: PlayerInfo].
@@ -123,6 +148,12 @@ public class Network: Node {
 
     /// Whether we're currently attempting to connect.
     private var isConnecting = false
+
+    /// Signal connection tokens for proper cleanup.
+    private var signalTokens: [Callable] = []
+
+    /// Timer signal token.
+    private var timerSignalToken: Callable?
 
     // MARK: - Signals
 
@@ -143,17 +174,37 @@ public class Network: Node {
             return
         }
 
-        // Connect multiplayer signals
-        mp.serverDisconnected.connect(onServerDisconnected)
-        mp.connectionFailed.connect(onConnectionFailed)
-        mp.peerDisconnected.connect(onPlayerDisconnected)
-        mp.peerConnected.connect(onPeerConnected)
-        mp.connectedToServer.connect(onConnectedToServer)
+        // Connect multiplayer signals and store tokens for cleanup
+        signalTokens.append(mp.serverDisconnected.connect(onServerDisconnected))
+        signalTokens.append(mp.connectionFailed.connect(onConnectionFailed))
+        signalTokens.append(mp.peerDisconnected.connect(onPlayerDisconnected))
+        signalTokens.append(mp.peerConnected.connect(onPeerConnected))
+        signalTokens.append(mp.connectedToServer.connect(onConnectedToServer))
 
         GD.print("Network: Ready, multiplayer signals connected")
     }
 
     public override func _exitTree() {
+        // Disconnect all signal connections
+        if let mp = multiplayer {
+            for token in signalTokens {
+                mp.serverDisconnected.disconnect(token)
+                mp.connectionFailed.disconnect(token)
+                mp.peerDisconnected.disconnect(token)
+                mp.peerConnected.disconnect(token)
+                mp.connectedToServer.disconnect(token)
+            }
+        }
+        signalTokens.removeAll()
+
+        // Clean up timer
+        if let timer = connectionTimer, let token = timerSignalToken {
+            timer.timeout.disconnect(token)
+        }
+        connectionTimer?.queueFree()
+        connectionTimer = nil
+        timerSignalToken = nil
+
         if Network.shared === self {
             Network.shared = nil
         }
@@ -182,13 +233,15 @@ public class Network: Node {
 
         multiplayer?.multiplayerPeer = peer
 
-        // Validate and truncate nickname
-        var nick = nickname.trimmingCharacters(in: .whitespaces)
-        if nick.isEmpty {
+        // Validate nickname (sanitizes special characters and enforces length)
+        var nick = Network.validateNickname(nickname)
+        if nick == "Player" && !nickname.trimmingCharacters(in: .whitespaces).isEmpty {
+            // If sanitization resulted in default, log a warning
+            GD.pushWarning("Network: Nickname contained invalid characters, using: \(nick)")
+        }
+        // Add unique ID suffix if generic
+        if nick == "Player" {
             nick = "Host_\(multiplayer?.getUniqueId() ?? 1)"
-        } else if nick.count > Network.maxNicknameLength {
-            nick = String(nick.prefix(Network.maxNicknameLength))
-            GD.pushWarning("Network: Nickname truncated to \(Network.maxNicknameLength) characters")
         }
 
         playerInfo.nick = nick
@@ -226,13 +279,15 @@ public class Network: Node {
 
         multiplayer?.multiplayerPeer = peer
 
-        // Validate and truncate nickname
-        var nick = nickname.trimmingCharacters(in: .whitespaces)
-        if nick.isEmpty {
+        // Validate nickname (sanitizes special characters and enforces length)
+        var nick = Network.validateNickname(nickname)
+        if nick == "Player" && !nickname.trimmingCharacters(in: .whitespaces).isEmpty {
+            // If sanitization resulted in default, log a warning
+            GD.pushWarning("Network: Nickname contained invalid characters, using: \(nick)")
+        }
+        // Add unique ID suffix if generic
+        if nick == "Player" {
             nick = "Player_\(multiplayer?.getUniqueId() ?? 0)"
-        } else if nick.count > Network.maxNicknameLength {
-            nick = String(nick.prefix(Network.maxNicknameLength))
-            GD.pushWarning("Network: Nickname truncated to \(Network.maxNicknameLength) characters")
         }
 
         playerInfo.nick = nick
@@ -248,16 +303,20 @@ public class Network: Node {
 
     /// Starts the connection timeout timer.
     private func startConnectionTimeout() {
-        // Cancel any existing timer
+        // Cancel any existing timer and disconnect its signal
+        if let timer = connectionTimer, let token = timerSignalToken {
+            timer.timeout.disconnect(token)
+        }
         connectionTimer?.stop()
         connectionTimer?.queueFree()
         connectionTimer = nil
+        timerSignalToken = nil
 
         // Create a Godot Timer node for the timeout
         let timer = Timer()
         timer.waitTime = Network.connectionTimeout
         timer.oneShot = true
-        timer.timeout.connect { [weak self] in
+        timerSignalToken = timer.timeout.connect { [weak self] in
             self?.onConnectionTimeout()
         }
         addChild(node: timer)
@@ -284,9 +343,13 @@ public class Network: Node {
     /// Cancels the connection timeout timer.
     private func cancelConnectionTimeout() {
         isConnecting = false
+        if let timer = connectionTimer, let token = timerSignalToken {
+            timer.timeout.disconnect(token)
+        }
         connectionTimer?.stop()
         connectionTimer?.queueFree()
         connectionTimer = nil
+        timerSignalToken = nil
     }
 
     // MARK: - Connection Handlers

@@ -60,6 +60,15 @@ public class Character: CharacterBody3D {
     /// Counter to force sync even for same message sent twice
     @Export var chatMessageId: Int = 0
 
+    /// Synced player nickname. When changed, updates the nickname label.
+    @Export var syncedNickname: String = "" {
+        didSet {
+            if syncedNickname != oldValue && !syncedNickname.isEmpty {
+                nicknameLabel?.text = syncedNickname
+            }
+        }
+    }
+
     // MARK: - Private State
 
     private var currentSpeed: Float = 6.0
@@ -157,8 +166,8 @@ public class Character: CharacterBody3D {
 
         GD.print("Character: Initializing local player with nick='\(playerInfo.nick)', skin=\(playerInfo.skin.rawValue)")
 
-        // Set nickname
-        nicknameLabel?.text = playerInfo.nick
+        // Set nickname - this syncs via MultiplayerSynchronizer
+        syncedNickname = playerInfo.nick
 
         // Set skin - this updates syncedSkinColor which syncs via MultiplayerSynchronizer
         syncedSkinColor = playerInfo.skin.rawValue

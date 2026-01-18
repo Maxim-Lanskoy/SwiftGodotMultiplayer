@@ -4788,6 +4788,9 @@ properties/5/replication_mode = 1
 properties/6/path = NodePath(".:chat_message_id")
 properties/6/spawn = false
 properties/6/replication_mode = 1
+properties/7/path = NodePath(".:synced_nickname")
+properties/7/spawn = true
+properties/7/replication_mode = 1
 
 [node name="Player" type="Character"]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)

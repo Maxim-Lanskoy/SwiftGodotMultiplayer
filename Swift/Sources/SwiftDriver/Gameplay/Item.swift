@@ -6,6 +6,10 @@
 // rarity (common-legendary), stacking rules, and serialization.
 
 import SwiftGodot
+
+// MARK: - Item Type
+
+/// Categories of items in the game.
 public enum ItemType: Int, CaseIterable {
     case weapon = 0
     case armor = 1
@@ -14,7 +18,9 @@ public enum ItemType: Int, CaseIterable {
     case misc = 4
 }
 
-// Item rarity levels
+// MARK: - Item Rarity
+
+/// Rarity levels for items, affecting value and appearance.
 public enum ItemRarity: Int, CaseIterable {
     case common = 0
     case uncommon = 1
@@ -23,22 +29,51 @@ public enum ItemRarity: Int, CaseIterable {
     case legendary = 4
 }
 
-// Item data class - represents an item definition
+// MARK: - Item
+
+/// Item definition containing all properties for an item type.
+///
+/// This is a pure Swift data class used internally for item definitions.
+/// Items are stored in `ItemDatabase` and referenced by ID in inventory slots.
 public class Item {
+    // MARK: - Properties
+
+    /// Unique identifier for the item.
     public var id: String = ""
+    /// Display name shown in UI.
     public var name: String = ""
+    /// Description text shown in tooltips.
     public var itemDescription: String = ""
+    /// Icon texture for UI display.
     public var icon: Texture2D?
 
+    /// Whether multiple items can occupy the same slot.
     public var stackable: Bool = true
+    /// Maximum quantity per stack (if stackable).
     public var maxStack: Int = 99
 
+    /// Category of the item.
     public var itemType: ItemType = .misc
+    /// Rarity level affecting UI color and value.
     public var rarity: ItemRarity = .common
+    /// Base gold value for trading.
     public var value: Int = 0
 
+    // MARK: - Initialization
+
+    /// Creates an empty item.
     public init() {}
 
+    /// Creates an item with the specified properties.
+    /// - Parameters:
+    ///   - id: Unique identifier.
+    ///   - name: Display name.
+    ///   - description: Tooltip description.
+    ///   - stackable: Whether items can stack.
+    ///   - maxStack: Maximum stack size.
+    ///   - itemType: Item category.
+    ///   - rarity: Rarity level.
+    ///   - value: Base gold value.
     public init(id: String, name: String, description: String = "", stackable: Bool = true, maxStack: Int = 99, itemType: ItemType = .misc, rarity: ItemRarity = .common, value: Int = 0) {
         self.id = id
         self.name = name
@@ -50,6 +85,10 @@ public class Item {
         self.value = value
     }
 
+    // MARK: - Serialization
+
+    /// Converts the item to a dictionary for network transmission.
+    /// - Returns: A VariantDictionary containing all item properties.
     public func toDict() -> VariantDictionary {
         let dict = VariantDictionary()
         dict["id"] = Variant(id)
@@ -63,6 +102,8 @@ public class Item {
         return dict
     }
 
+    /// Populates item properties from a dictionary.
+    /// - Parameter data: A VariantDictionary containing item properties.
     public func fromDict(_ data: VariantDictionary) {
         if let idVar = data["id"], let idStr = String(idVar) {
             id = idStr
@@ -90,6 +131,11 @@ public class Item {
         }
     }
 
+    // MARK: - Utility
+
+    /// Checks if this item can stack with another item.
+    /// - Parameter other: The other item to check.
+    /// - Returns: True if both items are stackable and have the same ID.
     public func canStackWith(_ other: Item) -> Bool {
         return stackable && other.stackable && id == other.id
     }
