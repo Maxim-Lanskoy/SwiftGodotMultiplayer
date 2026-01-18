@@ -92,11 +92,11 @@ deploy:
 	@echo "$(BOLD)────────────────────────────────────────────$(RESET)"
 	@mkdir -p $(GODOT_BIN_PATH)
 	@rm -f $(GODOT_BIN_PATH)/libSwiftGodot.dylib
-	@rm -f $(GODOT_BIN_PATH)/libSwiftLibrary.dylib
+	@rm -f $(GODOT_BIN_PATH)/libSwiftDriver.dylib
 	@cp $(BUILD_PATH)/debug/libSwiftGodot.dylib $(GODOT_BIN_PATH)/libSwiftGodot.dylib
 	@echo "  $(ARROW) libSwiftGodot.dylib"
-	@cp $(BUILD_PATH)/debug/libSwiftLibrary.dylib $(GODOT_BIN_PATH)/libSwiftLibrary.dylib
-	@echo "  $(ARROW) libSwiftLibrary.dylib"
+	@cp $(BUILD_PATH)/debug/libSwiftDriver.dylib $(GODOT_BIN_PATH)/libSwiftDriver.dylib
+	@echo "  $(ARROW) libSwiftDriver.dylib"
 	@echo "$(GREEN)$(CHECK) Libraries deployed to $(GODOT_BIN_PATH)$(RESET)"
 	@echo ""
 
@@ -138,7 +138,7 @@ clean:
 	@rm -rf $(BUILD_PATH)
 	@echo "  $(ARROW) Removed $(BUILD_PATH)"
 	@rm -f $(GODOT_BIN_PATH)/libSwiftGodot.dylib
-	@rm -f $(GODOT_BIN_PATH)/libSwiftLibrary.dylib
+	@rm -f $(GODOT_BIN_PATH)/libSwiftDriver.dylib
 	@echo "  $(ARROW) Removed libraries from $(GODOT_BIN_PATH)"
 	@echo "$(GREEN)$(CHECK) Clean complete$(RESET)"
 	@echo ""

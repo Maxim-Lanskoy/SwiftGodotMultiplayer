@@ -1,5 +1,5 @@
 //
-//  SwiftLibrary.swift
+//  SwiftDriver.swift
 //  SwiftGodotMultiplayer
 //
 // GDExtension entry point - registers all Swift types with Godot.

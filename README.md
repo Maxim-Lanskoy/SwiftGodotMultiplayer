@@ -22,8 +22,8 @@ SwiftGodotMultiplayer/
 │   ├── Package.swift         # Swift Package Manager configuration
 │   ├── Makefile              # Build automation (build, deploy, run, pack)
 │   ├── .env                  # Environment variables for Makefile
-│   └── SwiftLibrary/         # Main GDExtension library
-│       ├── SwiftLibrary.swift # Entry point, type registration
+│   └── Sources/SwiftDriver/   # Main GDExtension library
+│       ├── SwiftDriver.swift # Entry point, type registration
 │       ├── Network/           # Networking layer
 │       │   └── Network.swift  # Connection management, ENet
 │       ├── Gameplay/          # Game logic
@@ -45,7 +45,7 @@ SwiftGodotMultiplayer/
 │   ├── project.godot         # Godot project configuration
 │   ├── addons/swift/         # Editor plugin for Swift rebuilds
 │   └── bin/                  # Built Swift libraries destination
-│       └── SwiftLibrary.gdextension
+│       └── SwiftDriver.gdextension
 │
 └── StarterKitSwift/          # Reference: SwiftGodot 3D Platformer example
     └── source/               # Swift source code examples
@@ -232,9 +232,9 @@ items[newItem.id] = newItem
 
 ### New Swift Class
 
-1. Create file in `SwiftLibrary/Gameplay/` or appropriate folder
+1. Create file in `SwiftDriver/Gameplay/` or appropriate folder
 2. Add `@Godot` macro
-3. Register in `SwiftLibrary.swift` types array
+3. Register in `SwiftDriver.swift` types array
 4. `make all`
 
 ## Resources

@@ -19,8 +19,8 @@ SwiftGodotMultiplayer/
 │   ├── Package.swift
 │   ├── Makefile               # Build automation
 │   ├── .env                   # Build configuration
-│   └── SwiftLibrary/          # GDExtension library
-│       ├── SwiftLibrary.swift # Entry point, type registration
+│   └── Sources/SwiftDriver/   # GDExtension library
+│       ├── SwiftDriver.swift  # Entry point, type registration
 │       ├── Network/           # Networking layer
 │       │   └── Network.swift  # Connection management, ENet
 │       ├── Gameplay/          # Game logic
@@ -168,7 +168,7 @@ public func joinGame(nickname: String, skinColorStr: String, address: String) ->
 
 ## GDExtension Configuration
 
-File: `Godot/bin/SwiftLibrary.gdextension`
+File: `Godot/bin/SwiftDriver.gdextension`
 
 ```ini
 [configuration]
@@ -176,7 +176,7 @@ entry_symbol = "swift_entry_point"
 compatibility_minimum = 4.5
 
 [libraries]
-macos.debug = "res://bin/libSwiftLibrary.dylib"
+macos.debug = "res://bin/libSwiftDriver.dylib"
 
 [dependencies]
 macos.debug = {"res://bin/libSwiftGodot.dylib" : ""}
@@ -187,7 +187,7 @@ macos.debug = {"res://bin/libSwiftGodot.dylib" : ""}
 The `.env` file in the `Swift/` folder configures build paths:
 
 ```bash
-export PROJECT_NAME=SwiftLibrary
+export PROJECT_NAME=SwiftDriver
 export GODOT=/Applications/Godot.app/Contents/MacOS/Godot
 export GODOT_PROJECT_DIRECTORY=/path/to/Godot
 export GODOT_BIN_PATH=$(GODOT_PROJECT_DIRECTORY)/bin
@@ -236,7 +236,7 @@ override func _ready() {
 
 ### Adding a New Swift Class
 
-1. Create file in `Swift/SwiftLibrary/`
+1. Create file in `Swift/Sourcer/SwiftDriver/`
 2. Use `@Godot` macro for node classes
 3. Add type to `godotTypes` array in main entry point
 4. Rebuild using either:

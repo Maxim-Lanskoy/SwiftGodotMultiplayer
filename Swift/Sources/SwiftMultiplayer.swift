@@ -1,7 +1,7 @@
 import Foundation
 import SwiftGodot
 @preconcurrency import SwiftGodotKit
-import SwiftLibrary
+import SwiftDriver
 import SwiftUI
 
 func registerTypes(level: GDExtension.InitializationLevel) {
@@ -11,7 +11,7 @@ func registerTypes(level: GDExtension.InitializationLevel) {
 }
 
 @main
-struct MultiplayerSwiftApp: App {
+struct SwiftMultiplayerApp: App {
     init() {
         initHookCb = registerTypes
     }
@@ -76,9 +76,9 @@ struct ContentView: View {
 
     private func setupGodot() {
         // Try to find the pack file in the bundle
-        if let packPath = Bundle.module.path(forResource: "SwiftLibrary", ofType: "pck") {
+        if let packPath = Bundle.module.path(forResource: "SwiftDriver", ofType: "pck") {
             let packDir = (packPath as NSString).deletingLastPathComponent
-            app = GodotApp(packFile: "SwiftLibrary.pck", godotPackPath: packDir)
+            app = GodotApp(packFile: "SwiftDriver.pck", godotPackPath: packDir)
 
             if app?.start() == true {
                 print("GodotApp started with pack: \(packPath)")
@@ -91,7 +91,7 @@ struct ContentView: View {
             }
         } else {
             errorMessage = """
-            Could not find SwiftLibrary.pck in bundle.
+            Could not find SwiftDriver.pck in bundle.
 
             Run 'make pack' to create the pack file.
             """
