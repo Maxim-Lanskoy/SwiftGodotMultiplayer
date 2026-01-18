@@ -202,7 +202,7 @@ func requestAddItem(itemId: String, quantity: Int) {
 ### Property Sync for Chat
 
 ```swift
-// Synced via MultiplayerSynchronizer in player.tscn
+// Synced via MultiplayerSynchronizer (configured in Character.configureMultiplayerSync())
 @Export var syncedChatMessage: String = "" {
     didSet {
         if !syncedChatMessage.isEmpty && syncedChatMessage != oldValue {

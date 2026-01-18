@@ -69,9 +69,11 @@ The game uses a client-server architecture with:
 
 ### Property Sync (MultiplayerSynchronizer)
 
-Properties synced automatically via `player.tscn` MultiplayerSynchronizer:
-- `position`, `rotation` - movement
+Properties synced automatically (configured in `Character.configureMultiplayerSync()`):
+- `position` - player position
+- `3DGodotRobot:rotation` - character model rotation
 - `synced_skin_color` - player appearance
+- `synced_nickname` - player display name
 - `synced_chat_message`, `chat_message_id` - chat messages
 
 ```swift
@@ -84,12 +86,35 @@ Properties synced automatically via `player.tscn` MultiplayerSynchronizer:
     }
 }
 
-@Export var syncedChatMessage: String = "" {
+@Export var syncedNickname: String = "" {
     didSet {
-        if !syncedChatMessage.isEmpty && syncedChatMessage != oldValue {
-            displayChatMessage(syncedChatMessage)
+        if syncedNickname != oldValue && !syncedNickname.isEmpty {
+            nicknameLabel?.text = syncedNickname
         }
     }
+}
+```
+
+The sync configuration is done programmatically in `_enterTree()`:
+
+```swift
+private func configureMultiplayerSync() {
+    guard let sync = getNodeOrNull(path: NodePath("MultiplayerSynchronizer")) as? MultiplayerSynchronizer else { return }
+
+    let config = SceneReplicationConfig()
+    let syncedProperties: [(String, Bool, Int)] = [
+        (".:position", true, 1),           // position, spawn=true, mode=always
+        (".:synced_nickname", true, 1),    // nickname, spawn=true, mode=always
+        // ... more properties
+    ]
+
+    for (path, spawn, mode) in syncedProperties {
+        let nodePath = NodePath(path)
+        config.addProperty(path: nodePath, index: -1)
+        config.propertySetSpawn(path: nodePath, enabled: spawn)
+        config.propertySetReplicationMode(path: nodePath, mode: SceneReplicationConfig.ReplicationMode(rawValue: Int64(mode)) ?? .always)
+    }
+    sync.replicationConfig = config
 }
 ```
 
@@ -271,11 +296,13 @@ items[newItem.id] = newItem
 
 ## Important Notes
 
-- Use `[weak self]` in signal closures
+- Use `[weak self]` in signal closures to avoid retain cycles
+- Store signal connection tokens and disconnect in `_exitTree()` for proper cleanup
 - RPC requires both `@Callable` and `@Rpc` macros
 - Call `rpcConfig()` in `_enterTree()` for each RPC method
 - Use optional chaining: `Network.shared?.method()`
 - `nonisolated(unsafe)` for Swift 6 static singletons
+- Configure MultiplayerSynchronizer from code for better maintainability
 
 ## Reference Links
 
