@@ -71,14 +71,15 @@ The game uses a client-server architecture with:
 
 Properties synced automatically (configured in `Character.configureMultiplayerSync()`):
 - `position` - player position
-- `3DGodotRobot:rotation` - character model rotation
-- `synced_skin_color` - player appearance
+- `Mannequin_Medium:rotation` - character model rotation
+- `synced_skin_color` - player appearance (-1=none, 0=blue, 1=yellow, 2=green, 3=red)
 - `synced_nickname` - player display name
 - `synced_chat_message`, `chat_message_id` - chat messages
 
 ```swift
 // Character.swift - Synced properties with didSet observers
-@Export var syncedSkinColor: Int = 0 {
+// Skin color: -1=none/original, 0=blue, 1=yellow, 2=green, 3=red
+@Export var syncedSkinColor: Int = -1 {
     didSet {
         if syncedSkinColor != oldValue {
             applySkinTexture(syncedSkinColor)
@@ -292,6 +293,67 @@ let newItem = Item(
 )
 newItem.icon = placeholderIcon
 items[newItem.id] = newItem
+```
+
+## Player Character
+
+### Model Structure
+
+The player uses the `Mannequin_Medium` model with the following structure:
+- **Scene**: `Godot/scenes/level/character.tscn`
+- **Model**: `Godot/assets/scenes/Mannequin_Medium.tscn` (instances `Mannequin_Medium.glb`)
+- **Animations**: `Character_Medium_AnimLibrary.res` with prefix `Character_Medium/`
+
+Node hierarchy in character.tscn:
+```
+Character (type: Character)
+├── Mannequin_Medium (type: Body)
+│   └── Model (instance: Mannequin_Medium.tscn)
+│       ├── Rig_Medium/Skeleton3D/
+│       │   ├── Mannequin_Medium_Body
+│       │   ├── Mannequin_Medium_Head
+│       │   ├── Mannequin_Medium_ArmLeft
+│       │   ├── Mannequin_Medium_ArmRight
+│       │   ├── Mannequin_Medium_LegLeft
+│       │   └── Mannequin_Medium_LegRight
+│       └── AnimationPlayer_Medium
+├── CollisionShape3D
+├── SpringArmCharacter
+└── MultiplayerSynchronizer
+```
+
+### Animation Mapping
+
+| Action | Animation Name |
+|--------|---------------|
+| Idle | `Character_Medium/Idle_A` |
+| Walk/Run | `Character_Medium/Running_A` |
+| Sprint | `Character_Medium/Running_B` |
+| Jump | `Character_Medium/Jump_Start` |
+| Double Jump | `Character_Medium/Jump_Full_Long` |
+| Falling | `Character_Medium/Jump_Idle` |
+
+### Skin Color System
+
+Player skin colors use a shader-based HSV hue replacement system:
+- **Shader**: `Godot/assets/materials/mannequin_color.gdshader`
+- **Material**: `Godot/assets/materials/mannequin_color.tres`
+
+The shader is applied at runtime only when a specific color is chosen. Empty or unrecognized color input keeps the original multicolor texture.
+
+```swift
+// SkinColor enum in Network.swift
+public enum SkinColor: Int {
+    case none = -1    // Keep original multicolor texture
+    case blue = 0     // Hue: 0.58
+    case yellow = 1   // Hue: 0.15
+    case green = 2    // Hue: 0.33
+    case red = 3      // Hue: 0.0
+}
+
+// Usage: Enter color name in main menu skin field
+// Empty/unrecognized → original texture
+// "blue", "yellow", "green", "red" → uniform team color
 ```
 
 ## Important Notes
